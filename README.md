@@ -14,11 +14,21 @@ Project submission on the 30th of january
 ## Tutor for the project: 
 isabella.marasco4@gmail.com
 
+# WORKFLOW
+1. Write everything in a personal jupiter notebook
+2. Once tested and after group review put the code in one of the following modules:
+    - model.py
+    - strategies.py
+    - training.py
+    - metrics.py - evaluation
+    - preprocessing.py
+    - scenarios.py
+
 ## Steps:
 1. Realize an IDS CIL scenario based using PyTorch.
     - dataset exploration -- Jean
     - reading resources and checking how to implement the system with a code example -- Esther & Margarita
-2. Integrate these three   strategies for mitigating catastrophic forgetting: iCarl, DarkExperience, and ER.- Evaluate how the size of the incremental task (i.e., the number of new attack classes introduced in each phase) affects performance. Different scenarios will be compared (e.g., 10 total attacks introduced as 1+1+1... vs. 5+5 vs. 2+3+5) to  understand the system's sensitivity to the frequency and size of updates, the benign traffic is always present.
+2. Integrate these three   strategies for mitigating catastrophic forgetting: iCarl, DarkExperience, and ER.- Evaluate how the size of the incremental task (i.e., the number of new attack classes introduced in each phase) affects performance. Different **scenarios** will be compared (e.g., 10 total attacks introduced as 1+1+1... vs. 5+5 vs. 2+3+5) to  understand the system's sensitivity to the frequency and size of updates, the benign traffic is always present.
 3. [Few-Shot Scenario Evaluation (Optional): extend the analysis to investigate how the system performs when new attack classes are introduced with a very limited number of samples (few-shot learning), a realistic scenario for emerging threats.]
 
 ## Evaluation Metrics:
