@@ -14,6 +14,41 @@ Project submission on the 30th of january
 ## Tutor for the project: 
 isabella.marasco4@gmail.com
 
+# How tu run locally
+**On windows:**
+1. If you don't have a virtual environment yet create one with the following command:
+    ```ps
+    python -m venv venv
+    ```
+2. To activate the virtual environment once you created it
+    ```ps
+    venv\Scripts\Activate.ps1 
+    ```
+3. Install the requirements.txt
+    ```ps
+    pip install -r requirements.txt
+    ```
+
+**On macOS:**
+1. If you don't have a virtual environment yet, create one with the following command:
+    ```bash
+    python3 -m venv venv
+    ```
+2. To activate the virtual environment once you created it:
+    ```bash
+    source venv/bin/activate
+    ```
+3. Install the requirements.txt
+    ```bash
+    pip install -r requirements.txt
+    ```
+In the jupiter notebook use venv as the kernel of the notebook
+
+Remember after installing new libraries to perform the following actions:
+```ps
+pip freeze > requirements.txt
+```
+
 # WORKFLOW
 1. Write everything in a personal jupiter notebook
 2. Once tested and after group review put the code in one of the following modules:
