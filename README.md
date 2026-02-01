@@ -98,7 +98,9 @@ pip freeze > requirements.txt
 
 ## Datasets:
 - https://www.unb.ca/cic/datasets/ids-2017.html
+    - https://www.kaggle.com/datasets/chethuhn/network-intrusion-dataset
 - https://research.unsw.edu.au/projects/unsw-nb15-dataset
+    - https://unsw-my.sharepoint.com/personal/z5025758_ad_unsw_edu_au/_layouts/15/onedrive.aspx?id=%2Fpersonal%2Fz5025758%5Fad%5Funsw%5Fedu%5Fau%2FDocuments%2FUNSW%2DNB15%20dataset%2FCSV%20Files&viewid=f8d1dec5%2Dcd5f%2D42ae%2D8b06%2D2fece580c74a
 
 ## Reources:
 - https://ieeexplore.ieee.org/abstract/document/10444954?casa_token=Dk7EHtaXWGEAAAAA:C8wE_rD51BckgXNqxkXW-H5eFG2vy8OxCILQiUvD2BANfJ6mHYZ36_IsUXIuZs3eMADSNA
