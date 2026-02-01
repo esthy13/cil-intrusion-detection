@@ -14,6 +14,33 @@ Project submission on the 30th of january
 ## Tutor for the project: 
 isabella.marasco4@gmail.com
 
+# Structure of the repository
+cil-intrusion-detection/
+├─ README.md
+├─ requirements.txt
+├─ data/
+│  ├─ raw/            # original datasets (not tracked in git)
+│  ├─ processed/      # preprocessed datasets (optional)
+├─ notebooks/
+│  ├─ 00_setup.ipynb
+│  ├─ 01_eda.ipynb
+│  ├─ 02_training.ipynb
+│  ├─ 03_evaluation.ipynb
+├─ src/
+│  ├─ data.py         # loading + preprocessing
+│  ├─ features.py     # feature engineering
+│  ├─ model.py        # model architecture
+│  ├─ train.py        # training loop
+│  ├─ eval.py         # evaluation / metrics
+│  └─ utils.py
+├─ models/
+│  ├─ checkpoints/    # saved weights
+│  └─ final/
+├─ reports/ 
+│  ├─ report.pdf
+│  └─ presentation.pdf
+└─ .gitignore
+
 # How tu run locally
 **On windows:**
 1. If you don't have a virtual environment yet create one with the following command:
