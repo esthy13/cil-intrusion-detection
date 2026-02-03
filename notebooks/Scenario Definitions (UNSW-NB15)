@@ -1,1 +1,8 @@
 
+Scenario Definitions (UNSW-NB15)
+
+In this project, we adopt a Class-Incremental Learning (CIL) setting to model the continuous evolution of cyber threats. Instead of training the Intrusion Detection System (IDS) on all attack types at once, the model is exposed to the data in a sequence of tasks, where each task corresponds to the set of attack classes that are visible at a given time.
+
+A task is therefore defined as the subset of attack classes available during a specific training phase. In all tasks, benign traffic (Normal) is always present, as it represents background network activity that exists continuously in real-world environments.
+
+The UNSW-NB15 dataset contains 9 attack categories in addition to normal traffic. These attack classes are introduced progressively across tasks according to different task scenarios, which simulate different rates and patterns of threat evolution. The purpose of defining multiple scenarios is to analyze how the size and frequency of incremental updates affect the model’s performance and its susceptibility to catastrophic forgetting.
