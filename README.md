@@ -22,9 +22,9 @@ cil-intrusion-detection/
 │  ├─ raw/            # original datasets (not tracked in git)
 │  ├─ processed/      # preprocessed datasets (optional)
 ├─ notebooks/
-│  ├─ 00_setup.ipynb
-│  ├─ 01_eda.ipynb
-│  ├─ 02_training.ipynb
+│  ├─ 00_data_cleaning.ipynb # and dataset creation 
+│  ├─ 01_task_and_model_building
+│  ├─ 02_training_for_specific_strategy.ipynb
 │  ├─ 03_evaluation.ipynb
 ├─ src/
 │  ├─ data.py         # loading + preprocessing
