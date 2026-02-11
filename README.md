@@ -1,6 +1,12 @@
 # cil-intrusion-detection
 Cybersecurity project for year 2025/2026 at UniBo
 
+# Futures todo for the whole group
+- [ ] pack also UNSW_NB15 in a similar way to CIC_IDS_2017 so that it's usable for training too
+- [ ] implement the three strategies: icarl, dar and er
+- [ ] write the report
+- [ ] prepare slides for presentation
+
 ## Submission
 Project submission on the 30th of january 
 - form: https://docs.google.com/forms/d/e/1FAIpQLSeVGfQmJF3rCgumOtC069-qDpiXhNg_7yOc4-E_IieJE1jrMw/viewform
