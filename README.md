@@ -2,27 +2,34 @@
 Cybersecurity project for year 2025/2026 at UniBo
 
 # TASKS for 18/02/2026
-- [ ] pack also UNSW_NB15 in a similar way to CIC_IDS_2017 so that it's usable for training too --> exporting as .csv
-- [ ] finish the three strategies: icarl, dar and er
-    - [ ] check that you're using the correct loss function
-    - [ ] up-to-normalisation at the beginning of each task
-    - [ ] check that the buffer contains just the indices to the original dataset
-    - [ ] after each task compute accuracy and f1-score, plot the confusion matrix and export it to png in the `results/confusion_matrices/ folder`
-- [ ] After the training loop compute the average accuracy and the forgetting measure
-- [ ] Save training results in the folder `results/training`in a json file with the following structure:
+* [ ] pack also UNSW_NB15 in a similar way to CIC_IDS_2017 so that it's usable for training too --> exporting as .csv
+  
+* [ ] finish the three strategies: icarl, dar and er
+  * [ ] check that you're using the correct loss function
+  * [ ] up-to-normalisation at the beginning of each task 
+  * [ ] correct scenario and task definition -- first has one extra class the benign one, and benign class must always be class 0
+  * [ ] check that the buffer contains just the indices to the original dataset and not a copy of the element, or modified element
+  * [ ] after each task compute accuracy and f1-score, plot the confusion matrix and export it to png in the `results/confusion_matrices/ folder`
+* [ ] After the training loop compute the average accuracy and the forgetting measure
+  
+* [ ] Save training results in the folder `results/training`in a json file with the following structure:
+  
     ```json
-    {
-    "strategy_name": "example_name",
-    "scenario_pattern": [1, 1, 1],
-    "metrics": {
-        "accuracy": [],
-        "f1": [],
-        "average_accuracy": 0.8,
-        "forgetting_measure": []
-    }
-    }
+      {
+      "strategy_name": "example_name",
+      "scenario_pattern": [1, 1, 1],
+      "metrics": {
+          "accuracy": [],
+          "f1": [],
+          "average_accuracy": 0.8,
+          "forgetting_measure": []
+      }
     ```
-- [ ] methods to make comparison graphs for the report 
+* [ ] transform the training loop in a specific training method that respects the structure of the general training method
+  
+* [ ] check that training printing results are consistent across the three different training strategies
+  
+* [ ] methods to make comparison graphs for the report
 
 
 # Structure of the repository
