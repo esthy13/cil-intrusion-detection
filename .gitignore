@@ -1,5 +1,6 @@
 # dataset folder
-dataset/
+data/processed/2017
+data/processed/2015
 
 # Byte-compiled / optimized / DLL files
 __pycache__/
