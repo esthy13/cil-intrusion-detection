@@ -1,0 +1,36 @@
+{
+  "strategy_name": "derpp",
+  "scenario_pattern": [
+    [
+      "benign",
+      "dos",
+      "ddos",
+      "portscan"
+    ],
+    [
+      "benign",
+      "dos",
+      "ddos",
+      "portscan",
+      "ssh-patator",
+      "ftp-patator",
+      "web-attack",
+      "bot"
+    ]
+  ],
+  "metrics": {
+    "accuracy": [
+      0.8176566188595087,
+      0.9545250948867253
+    ],
+    "f1": [
+      0.2715055162858762,
+      0.516187329223546
+    ],
+    "average_accuracy": 0.886090856873117,
+    "forgetting_measure": [
+      -0.13686847602721663,
+      0.0
+    ]
+  }
+}
