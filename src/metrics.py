@@ -2,7 +2,7 @@ import torch
 import numpy as np
 import os
 import matplotlib.pyplot as plt
-from sklearn.metrics import f1_score, accuracy_score
+from sklearn.metrics import ConfusionMatrixDisplay, confusion_matrix, f1_score, accuracy_score
 
 def accuracy(y_true, y_pred):
 
@@ -61,5 +61,14 @@ def save_confusion_matrix(cm, class_names, out_path, title=None):
     plt.savefig(out_path, dpi=300, bbox_inches="tight")
     plt.close() 
 
-#TODO: add function to compute display and return the confusion matrix, then call
-# the save_confusion_matrix function to save it.    
+def compute_cm(y_true, y_pred, seen_classes, show_plot=True):
+  cm = confusion_matrix(y_true, y_pred)
+  if show_plot:
+    disp = ConfusionMatrixDisplay(cm, display_labels=seen_classes)
+    disp.plot()
+
+    # Rotate x-axis labels
+    plt.xticks(rotation=45)  # change 45 to 90 if needed
+    plt.show()
+
+  return cm
