@@ -1,5 +1,5 @@
 import torch.nn as nn 
-import torch.functional as F 
+import torch.nn.functional as F 
 
 class CILModel(nn.Module):
     def __init__(self, input_dim, feature_dim=128):

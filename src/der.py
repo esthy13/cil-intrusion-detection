@@ -2,10 +2,10 @@ import torch
 import random
 import numpy as np
 import torch.nn as nn 
-import torch.functional as F 
+import torch.nn.functional as F 
 from torch.utils.data import DataLoader
-from metrics import accuracy, macro_f1
-from task_builder import build_task
+from src.metrics import accuracy, macro_f1
+from src.task_builder import build_task
 
 class ReservoirBuffer:
     def __init__(self, size):
