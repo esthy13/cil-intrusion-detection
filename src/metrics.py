@@ -19,28 +19,35 @@ def average_accuracy(task_accuracies):
   """
   return np.mean(task_accuracies)
 
+import numpy as np
+
 def compute_forgetting(results):
     """
-    results: 2D list or numpy array
-             shape (num_tasks, num_tasks)
-             results[t][i] = metric on task i after training task t
+    results: 1D list or numpy array
+             Length = num_tasks
+             results[k] = accuracy on task k after training on all previous tasks
     """
-
+    
+    # Ensure results is a numpy array for easy slicing
     results = np.array(results)
-    num_tasks = results.shape[0]
-
+    num_tasks = len(results)
+    
+    # List to store the forgetting for each task
     forgetting_per_task = []
 
-    for t in range(1, num_tasks):
-        f_t = 0
-        for i in range(t):
-            best_past = np.max(results[:t, i])
-            current = results[t, i]
-            f_t += (best_past - current)
+    # Iterate over all tasks (starting from task 1)
+    for k in range(1, num_tasks):
+        f_k = 0  # Initialize forgetting for task k
+        for j in range(k):  # Compare task k with all previous tasks (0 to k-1)
+            best_past = np.max(results[:k])  # Maximum accuracy from all previous tasks
+            current = results[k]  # Current performance on task k
+            f_k += (best_past - current)  # Forgetting is the difference
 
-        f_t /= t
-        forgetting_per_task.append(f_t)
-
+        # Compute the average forgetting for task k
+        f_k /= k
+        forgetting_per_task.append(f_k)
+    
+    # Return the average forgetting across all tasks
     return np.mean(forgetting_per_task)
 
 def save_confusion_matrix(cm, class_names, out_path, title=None):
