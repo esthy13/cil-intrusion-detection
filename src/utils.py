@@ -16,6 +16,18 @@ def save_training_results(strategy_name, attack_pattern, acc_history, f1_history
     with open(json_path, "w") as f:
         json.dump(results, f, indent=2)
 
-def print_task_results():
+def print_task_results(task_num, new_attacks, seen_attacks, accuracy, macro_f1):
+    """
+     --- Task 1 ---
     
-    print()
+    New attacks: [benign, dos]
+    Seen so far: [portscan]
+
+    accuracy: 0.00
+    macro-f1: 0.00
+    """
+    print(f"\t--- Task {task_num} ---\n\n",
+        f"\tNew attacks: {new_attacks}\n",
+        f"\tSeen so far: {seen_attacks}\n\n"
+        f"\taccuracy: {accuracy:.2f}\n",
+        f"\tmacro-f1: {macro_f1:.2f}\n\n")
