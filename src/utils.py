@@ -28,6 +28,6 @@ def print_task_results(task_num, new_attacks, seen_attacks, accuracy, macro_f1):
     """
     print(f"   --- Task {task_num} ---\n\n",
         f"   New attacks: {new_attacks}\n",
-        f"   Seen so far: {seen_attacks}\n\n"
+        f"   Seen so far: {seen_attacks}\n\n",
         f"   accuracy: {accuracy:.2f}\n",
         f"   macro-f1: {macro_f1:.2f}\n\n")
