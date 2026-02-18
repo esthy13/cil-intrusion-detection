@@ -23,11 +23,8 @@ import numpy as np
 
 def compute_forgetting(results):
     """
-    results: 1D list or numpy array
-             Length = num_tasks
-             results[k] = accuracy on task k after training on all previous tasks
+    results: a matrix of shape (num_tasks, num_tasks) where results[i][j] is the accuracy on task j after training on task i.
     """
-    
     # Ensure results is a numpy array for easy slicing
     results = np.array(results)
     num_tasks = len(results)
