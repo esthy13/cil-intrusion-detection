@@ -16,3 +16,9 @@ def save_training_results(strategy_name, attack_pattern, acc_history, f1_history
     out_json = f"results/training/DER_scenario_{scenario_id+1}_results.json"
     with open(out_json, "w") as f:
         json.dump(results, f, indent=2)
+
+def create_optimizer():
+    pass
+
+def create_scheduler():
+    pass
