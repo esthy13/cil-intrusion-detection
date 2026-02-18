@@ -15,3 +15,7 @@ def save_training_results(strategy_name, attack_pattern, acc_history, f1_history
 
     with open(json_path, "w") as f:
         json.dump(results, f, indent=2)
+
+def print_task_results():
+    
+    print()
