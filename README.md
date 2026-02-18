@@ -31,6 +31,29 @@ Cybersecurity project for year 2025/2026 at UniBo
   
 * [ ] methods to make comparison graphs for the report
 
+* [ ] common input and output dimension
+
+* [ ] Common output
+```txt
+Strategy - <strategy name> ==========
+
+    === Scenario [1,1,1,1,1] ===
+
+    --- Task 1 ---
+    
+    New attacks: [benign, dos]
+    Seen so far: [portscan]
+
+    accuracy: 0.00
+    macro-f1: 0.00
+
+    --- Task 2 ---
+
+    --- Task n ---
+    
+    average accuracy:
+    forgetting
+```
 
 # Structure of the repository
 ```txt
