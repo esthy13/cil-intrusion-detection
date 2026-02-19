@@ -1,3 +1,13 @@
+import os
+import torch
+import numpy as np
+from src.task_builder import build_scenario, UpToNormalizer, build_task
+from src.model import CILModel
+from src.der import ReservoirBuffer, train_task, evaluate
+from src.utils import print_task_results, save_training_results
+from src.metrics import compute_forgetting, average_accuracy
+from torch.utils.data import DataLoader
+
 def train_and_evaluate_DER(
     scenario_id,
     trainset,
