@@ -11,6 +11,15 @@ class RemappedSubset(Dataset):
         self.indices = indices
         self.class_map = {cid: i for i, cid in enumerate(class_ids)}
 
+        self.x = dataset.x[self.indices]
+        
+        # remapping labels in case attacks are not passed in alphabetical order
+        original_y = dataset.y[self.indices]
+        self.y = torch.tensor(
+            [self.class_map[y.item()] for y in original_y]
+        )
+
+
     def __len__(self):
         return len(self.indices)
 
