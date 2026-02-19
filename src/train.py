@@ -1,7 +1,7 @@
 #TODO import train_and_evaluate_iCARL
 #TODO import train_and_evaluate_ER
 #TODO import train_and_evaluate_DER
-from src.utils import print_strategy
+from src.utils import print_strategy, print_scenario
 
 def general_training_loop(
     trainset,
@@ -26,6 +26,7 @@ def general_training_loop(
     print_strategy(strategy_name)
 
     for scenario_id, attack_pattern in enumerate(attack_patterns):
+        print_scenario(scenario_id, attack_pattern)
         train_and_evaluate(
             scenario_id,
             trainset,
