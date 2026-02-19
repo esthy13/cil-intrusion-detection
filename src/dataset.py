@@ -48,14 +48,8 @@ class IDSBaseDataset(Dataset):
         assert new_x.shape == self.x.shape
         self.x = new_x.astype(np.float32)
 
-    @classmethod
-    def from_arrays(cls, x, y, classes, class_to_idx):
-        dataset = cls.__new__(cls)
-        dataset.x = x.astype(np.float32)
-        dataset.y = y.astype(np.int64)
-        dataset.classes = classes
-        dataset.class_to_idx = class_to_idx
-        return dataset
+    def copy(self):
+        return copy.deepcopy(self)
 
 #Class from Margarita
 class TaskDatasetView(Dataset):
