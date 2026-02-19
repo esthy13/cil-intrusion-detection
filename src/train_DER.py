@@ -28,7 +28,7 @@ def train_and_evaluate_DER(
     os.makedirs("results/training", exist_ok=True)
 
     # build scenario from attack pattern
-    tasks, attack_pattern = build_scenario(all_classes, attack_pattern)
+    tasks, attack_pattern = build_scenario(all_classes, attack_pattern, benign_class=trainset.benign)
 
     # Initialize model and buffer
     model = CILModel(input_dim).to(device)

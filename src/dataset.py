@@ -23,6 +23,7 @@ class IDSBaseDataset(Dataset):
         df = pd.concat([pd.read_csv(c) for c in csvs], ignore_index=True)
 
         labels = list(df[label].unique())
+        self.benign = benign
 
         if benign not in labels:
             raise ValueError(f"Dataset must contain a {benign} class")

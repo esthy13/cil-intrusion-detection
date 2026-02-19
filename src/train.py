@@ -1,6 +1,7 @@
 #TODO import train_and_evaluate_iCARL
 #TODO import train_and_evaluate_ER
 #TODO import train_and_evaluate_DER
+from src.train_DER import train_and_evaluate_DER
 from src.utils import print_strategy, print_scenario
 
 def general_training_loop(
@@ -14,12 +15,12 @@ def general_training_loop(
     strategy_name
     ):
 
-    if strategy_name == "iCARL":
-        train_and_evaluate = train_and_evaluate_iCARL
-    elif strategy_name == "ER":
-        train_and_evaluate = train_and_evaluate_ER
-    elif strategy_name == "DER":
-        train_and_evaluate = train_and_evaluate_DER
+    if strategy_name == "DER":
+         train_and_evaluate = train_and_evaluate_DER
+    # elif strategy_name == "ER":
+    #     train_and_evaluate = train_and_evaluate_ER
+    # elif strategy_name == "iCARL":
+    #     train_and_evaluate = train_and_evaluate_iCARL
     else:
         print("Strategy not implemented")
 
