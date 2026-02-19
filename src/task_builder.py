@@ -6,17 +6,23 @@ class RemappedSubset(Dataset):
     """
     Subset that remaps global class indices to [0..C-1]
     """
-    def __init__(self, dataset, indices, class_ids):
+    def __init__(self, dataset, indices, class_ids, features=None):
         self.dataset = dataset
         self.indices = indices
         self.class_map = {cid: i for i, cid in enumerate(class_ids)}
 
-        self.x = dataset.x[self.indices]
+        if features is None:
+            self.x = dataset.x[self.indices]
+        else:
+            if len(features) != len(self.indices):
+                raise ValueError("features length must match subset size")
+            self.x = np.asarray(features, dtype=np.float32)
         
         # remapping labels in case attacks are not passed in alphabetical order
         original_y = dataset.y[self.indices]
         self.y = torch.tensor(
-            [self.class_map[y.item()] for y in original_y]
+            [self.class_map[y.item()] for y in original_y],
+            dtype=torch.long
         )
 
 
@@ -24,13 +30,12 @@ class RemappedSubset(Dataset):
         return len(self.indices)
 
     def __getitem__(self, idx):
-        x, y = self.dataset[self.indices[idx]]
-        return x, torch.tensor(self.class_map[y.item()])
+        return torch.as_tensor(self.x[idx]), self.y[idx]
 
-def build_task(dataset, class_names):
+def build_task(dataset, class_names, features=None):
     class_ids = [dataset.class_to_idx[c] for c in class_names]
     idxs = np.where(np.isin(dataset.y, class_ids))[0]
-    return RemappedSubset(dataset, idxs, class_ids)
+    return RemappedSubset(dataset, idxs, class_ids, features=features)
 
 def build_scenario( all_classes, attacks_pattern, benign_class="benign"):
     """
