@@ -95,7 +95,7 @@ def train_and_evaluate_DER(
 
         print_task_results(task_id+1, new_classes, seen_classes, acc, f1)
 
-        seen_classes += classes
+        seen_classes += new_classes
 
     # compute metrics for this scenario
     forgetting_measure = compute_forgetting(a_matrix)

@@ -35,6 +35,6 @@ def general_training_loop(
             feature_dim,
             device,
             memory_size,
-            attack_patterns, # single pattern
+            attack_pattern, # single pattern
             epochs
         )
