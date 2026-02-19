@@ -31,3 +31,9 @@ def print_task_results(task_num, new_attacks, seen_attacks, accuracy, macro_f1):
         f"   Seen so far: {seen_attacks}\n\n",
         f"   accuracy: {accuracy:.2f}\n",
         f"   macro-f1: {macro_f1:.2f}\n\n")
+
+def print_scenario(scenario_id, attack_pattern):
+    print(f"=== Scenario {scenario_id} - {attack_pattern} ===\n\n")
+
+def print_strategy(strategy_name):
+    print(f"Strategy {strategy_name} ========\n\n")
