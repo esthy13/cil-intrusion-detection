@@ -22,7 +22,7 @@ Cybersecurity project for year 2025/2026 at UniBo
 
 * [ ] Common output
 ```txt
-Strategy - <strategy name> ==========
+Strategy <strategy name> ========
 
     === Scenario [1,1,1,1,1] ===
 
