@@ -14,9 +14,12 @@ class RemappedSubset(Dataset):
         if features is None:
             self.x = dataset.x[self.indices]
         else:
-            if len(features) != len(self.indices):
+            feat = np.asarray(features)
+            if len(feat) != len(self.indices):
                 raise ValueError("features length must match subset size")
-            self.x = np.asarray(features, dtype=np.float32)
+            if feat.dtype != np.float32:
+                feat = feat.astype(np.float32, copy=False)
+            self.x = feat
         
         # remapping labels in case attacks are not passed in alphabetical order
         original_y = dataset.y[self.indices]
@@ -35,7 +38,16 @@ class RemappedSubset(Dataset):
 def build_task(dataset, class_names, features=None):
     class_ids = [dataset.class_to_idx[c] for c in class_names]
     idxs = np.where(np.isin(dataset.y, class_ids))[0]
-    return RemappedSubset(dataset, idxs, class_ids, features=features)
+    task_features = None
+    if features is not None:
+        features = np.asarray(features)
+        if len(features) == len(dataset.y):
+            task_features = features[idxs]
+        elif len(features) == len(idxs):
+            task_features = features
+        else:
+            raise ValueError("features length must match dataset size or task size")
+    return RemappedSubset(dataset, idxs, class_ids, features=task_features)
 
 def build_scenario( all_classes, attacks_pattern, benign_class="benign"):
     """
