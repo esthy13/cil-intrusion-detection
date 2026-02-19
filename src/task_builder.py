@@ -16,7 +16,9 @@ class RemappedSubset(Dataset):
         else:
             feat = np.asarray(features)
             if len(feat) != len(self.indices):
-                raise ValueError("features length must match subset size")
+                raise ValueError(
+                    f"features length ({len(feat)}) must match subset size ({len(self.indices)})"
+                )
             if feat.dtype != np.float32:
                 feat = feat.astype(np.float32, copy=False)
             self.x = feat
@@ -46,7 +48,10 @@ def build_task(dataset, class_names, features=None):
         elif len(features) == len(idxs):
             task_features = features
         else:
-            raise ValueError("features length must match dataset size or task size")
+            raise ValueError(
+                f"features length ({len(features)}) must match dataset size ({len(dataset.y)}) "
+                f"or task size ({len(idxs)})"
+            )
     return RemappedSubset(dataset, idxs, class_ids, features=task_features)
 
 def build_scenario( all_classes, attacks_pattern, benign_class="benign"):
