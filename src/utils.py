@@ -62,8 +62,11 @@ def build_parser():
                         help='CIL strategy to use (e.g., er, icarl, der)')
     parser.add_argument('--dataset', type=str, default='2015', choices=['2015', '2017'],
                         help='Dataset to use')
-    parser.add_argument('--scenarios', type=list,
-                        help='CIL scenarios to train as a list of lists (e.g., [1,1,1], [2,3,4], [4,4])')
+    parser.add_argument("--scenarios",
+    nargs="+",
+    type=str,
+    required=True,
+    help='Example: --scenarios "1+1+1" "2+2+2"')
     parser.add_argument("--epochs", type=int, default=10,
                         help="number of epochs to train per scenario")
     parser.add_argument("--lr", type=float, default=1e-3,
@@ -74,7 +77,8 @@ def build_parser():
                         help = "feature embeddings output")
 
     args, unknown = parser.parse_known_args()
-
+    
+    args.scenarios = parse_scenarios(args.scenarios)
     strategy_kwargs = parse_unknown_kwargs(unknown)
 
     return args, strategy_kwargs
@@ -120,3 +124,17 @@ def parse_unknown_kwargs(unknown):
         i += 1
 
     return kwargs
+
+def parse_scenarios(raw_scenarios):
+    """
+    Converts ["1+1+1", "2+2+2"] -> [[1,1,1], [2,2,2]]
+    """
+    parsed = []
+    for s in raw_scenarios:
+        try:
+            parsed.append([int(x) for x in s.split("+")])
+        except ValueError:
+            raise ValueError(
+                f"Invalid scenario format: '{s}'. Use format like 1+1+1"
+            )
+    return parsed
