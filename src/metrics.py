@@ -19,8 +19,6 @@ def average_accuracy(task_accuracies):
   """
   return np.mean(task_accuracies)
 
-import numpy as np
-
 def compute_forgetting(results):
     """
     results: a matrix of shape (num_tasks, num_tasks) where results[i][j] is the accuracy on task j after training on task i.

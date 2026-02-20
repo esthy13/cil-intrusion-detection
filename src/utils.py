@@ -1,4 +1,8 @@
 import json
+import argparse
+import torch
+import numpy as np
+import random
 
 def save_training_results(strategy_name, attack_pattern, acc_history, f1_history,
     avg_acc, forgetting_measure, scenario_id, json_path):
@@ -37,3 +41,82 @@ def print_scenario(scenario_id, attack_pattern):
 
 def print_strategy(strategy_name):
     print(f"Strategy {strategy_name} ========\n\n")
+
+def get_device():
+    if torch.cuda.is_available():
+        return torch.device("cuda")
+    elif torch.backends.mps.is_available():
+        return torch.device("mps")
+    else:
+        return torch.device("cpu")
+
+def set_seed(seed=42):
+    torch.manual_seed(seed)
+    np.random.seed(seed)
+    random.seed(seed)
+
+def build_parser():
+    parser = argparse.ArgumentParser(description='Continous incremental learning training')
+    parser.register('type', None, str.lower)
+    parser.add_argument('--strategy', type=str, default='er', choices=['er', 'icarl', 'der'],
+                        help='CIL strategy to use (e.g., er, icarl, der)')
+    parser.add_argument('--dataset', type=str, default='2015', choices=['2015', '2017'],
+                        help='Dataset to use')
+    parser.add_argument('--scenarios', type=list,
+                        help='CIL scenarios to train as a list of lists (e.g., [1,1,1], [2,3,4], [4,4])')
+    parser.add_argument("--epochs", type=int, default=10,
+                        help="number of epochs to train per scenario")
+    parser.add_argument("--lr", type=float, default=1e-3,
+                        help = "learning rate")
+    parser.add_argument("--memory_size", type=int, default=10000,
+                        help = "Total memory size for old classes")
+    parser.add_argument("--feature_dim", type=int, default=128,
+                        help = "feature embeddings output")
+
+    args, unknown = parser.parse_known_args()
+
+    strategy_kwargs = parse_unknown_kwargs(unknown)
+
+    return args, strategy_kwargs
+
+def parse_unknown_kwargs(unknown):
+    """
+    Converts unknown CLI arguments into a kwargs-style dictionary.
+    Example:
+    ["--alpha", "0.5", "--beta", "1"] -> {"alpha": 0.5, "beta": 1}
+    """
+    kwargs = {}
+    i = 0
+
+    while i < len(unknown):
+        key = unknown[i]
+
+        if key.startswith("--"):
+            key = key.lstrip("-").replace("-", "_")
+
+            # Si el siguiente elemento NO es otro flag, es su valor
+            if i + 1 < len(unknown) and not unknown[i + 1].startswith("--"):
+                value = unknown[i + 1]
+                i += 1
+            else:
+                # Flag tipo booleano (--debug)
+                value = True
+
+            # Intentar casteo automático (int, float, bool)
+            if isinstance(value, str):
+                if value.lower() in ["true", "false"]:
+                    value = value.lower() == "true"
+                else:
+                    try:
+                        if "." in value:
+                            value = float(value)
+                        else:
+                            value = int(value)
+                    except ValueError:
+                        pass  # se queda como string
+
+            kwargs[key] = value
+
+        i += 1
+
+    return kwargs
