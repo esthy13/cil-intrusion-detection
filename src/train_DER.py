@@ -53,7 +53,7 @@ def train_and_evaluate_DER(
         model.classifier = model.classifier.to(device)
 
         #TODO modify optimizer like margarita told you to do it
-        lr = 1e-5
+        lr = 1e-5 if task_id == 0 else 1e-3
         optimizer = torch.optim.AdamW( model.parameters(), lr=lr ) 
         scheduler = torch.optim.lr_scheduler.CosineAnnealingLR( optimizer, 
         T_max=epochs, eta_min=lr * 0.01 )
