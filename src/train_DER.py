@@ -32,7 +32,7 @@ def train_and_evaluate_DER(
 
     # Initialize model and buffer
     model = CILModel(input_dim).to(device)
-    buffer = ReservoirBuffer(size=memory_size)
+    reservoir_buffer = ReservoirBuffer(size=memory_size)
 
     acc_history = []
     f1_history = []
@@ -53,7 +53,10 @@ def train_and_evaluate_DER(
         model.classifier = model.classifier.to(device)
 
         #TODO modify optimizer like margarita told you to do it
-        optimizer = torch.optim.Adam(model.parameters(), lr=1e-5 if task_id == 0 else 1e-3)
+        lr = 1e-4
+        optimizer = torch.optim.AdamW( model.parameters(), lr=lr ) 
+        scheduler = torch.optim.lr_scheduler.CosineAnnealingLR( optimizer, 
+        T_max=epochs, eta_min=lr * 0.01 )
         normalizer = UpToNormalizer()
 
         # up-to-normalization
@@ -70,11 +73,8 @@ def train_and_evaluate_DER(
             shuffle=True
         )
 
-        # Train model on the current task
-        train_task(model, train_loader, buffer, optimizer, device, epochs=3)
-
         # train model on the current task
-        train_task(model, train_loader, buffer, optimizer, device, epochs)
+        train_task(model, train_loader, reservoir_buffer, optimizer, scheduler, device, epochs)
 
         # good I am evaluating on the test set!!!
         # evaluate the model on the current task

@@ -68,7 +68,7 @@ class ReservoirBuffer:
 
         return indices, labels, logits
 
-def train_task(model, loader, buffer, optimizer, device,
+def train_task(model, loader, reservoir_buffer, optimizer, scheduler, device,
                alpha=0.5, beta=0.5, epochs=1,):
 
     ce = nn.CrossEntropyLoss()
@@ -84,7 +84,7 @@ def train_task(model, loader, buffer, optimizer, device,
             loss = ce(logits, y)
 
             # ----- DER++ Replay -----
-            buf = buffer.sample(len(x), model.classifier.out_features)
+            buf = reservoir_buffer.sample(len(x), model.classifier.out_features)
 
             if buf is not None:
                 replay_indices, replay_labels, replay_logits = buf
@@ -117,6 +117,7 @@ def train_task(model, loader, buffer, optimizer, device,
             optimizer.zero_grad()
             loss.backward()
             optimizer.step()
+            scheduler.step()
 
             # ----- Add current batch to buffer -----
             original_indices = [
@@ -127,7 +128,7 @@ def train_task(model, loader, buffer, optimizer, device,
                 )
             ]
 
-            buffer.add(original_indices, y, logits)
+            reservoir_buffer.add(original_indices, y, logits)
 
 def evaluate(model, dataset, seen_classes, device, batch_size=256):
     model.eval()
