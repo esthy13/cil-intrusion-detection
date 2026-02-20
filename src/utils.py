@@ -75,6 +75,8 @@ def build_parser():
                         help = "Total memory size for old classes")
     parser.add_argument("--feature_dim", type=int, default=128,
                         help = "feature embeddings output")
+	 parser.add_argument("--batch_size", type=int, default=64,
+                        help = "batch size")
 
     args, unknown = parser.parse_known_args()
     
@@ -138,3 +140,4 @@ def parse_scenarios(raw_scenarios):
                 f"Invalid scenario format: '{s}'. Use format like 1+1+1"
             )
     return parsed
+
