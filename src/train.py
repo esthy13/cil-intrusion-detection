@@ -12,7 +12,8 @@ def general_training_loop(
     memory_size,
     attack_patterns, # multiple patterns, array of array
     epochs, 
-    strategy_name
+    strategy_name,
+    # kwargs 
     ):
 
     if strategy_name == "DER":

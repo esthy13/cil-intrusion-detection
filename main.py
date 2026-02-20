@@ -16,6 +16,7 @@ folder_json.mkdir(parents=True, exist_ok=True)
 folder_cm = Root / "results" / "confusion_matrices"
 folder_cm.mkdir(parents=True, exist_ok=True)
 
+#TODO: you can just call the general training loop
 def get_strategy(strategy_name, model, criterion, **strategy_kwargs):
     if strategy_name == 'er':
         return ER(model=model, criterion=criterion, **strategy_kwargs)
@@ -67,3 +68,4 @@ def main():
 if __name__ == "__main__":
 
     main()
+    #in order to run the program also from the command line and not just from colab

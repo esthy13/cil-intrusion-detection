@@ -1,52 +1,6 @@
 # cil-intrusion-detection
 Cybersecurity project for year 2025/2026 at UniBo
 
-# TASKS for 18/02/2026
-* [ ] pack also UNSW_NB15 in a similar way to CIC_IDS_2017 so that it's usable for training too --> exporting as .csv
-  
-* [ ] finish the three strategies: icarl, dar and er
-  * [x] check that you're using the correct loss function
-  * [ ] up-to-normalisation at the beginning of each task @Jeanritah
-  * [ ] correct scenario and task definition -- first has one extra class the benign one, and benign class must always be class 0 @Jeanritah
-  * [ ] check that the buffer contains just the indices to the original dataset and not a copy of the element, or modified element
-  * [ ] after each task compute accuracy and f1-score, plot the confusion matrix and export it to png in the `results/confusion_matrices/ folder`@Jeanritah, @m-mejiaj
-* [x] After the training loop compute the average accuracy and the forgetting measure 
-  
-* [ ] use common method to save results to json
-
-* [ ] transform the training loop in a specific training method that respects the structure of the general training method
-
-* [ ] common feature dimension 128
-
-* [ ] add weighted samples to prevent bad learning with few samples
-
-* [ ] Common output
-```txt
-Strategy <strategy name> ========
-
-    === Scenario [1,1,1,1,1] ===
-
-    --- Task 1 ---
-    
-    New attacks: [benign, dos]
-    Seen so far: [portscan]
-
-    accuracy: 0.00
-    macro-f1: 0.00
-
-    --- Task 2 ---
-
-    --- Task n ---
-    
-    average accuracy:
-    forgetting
-```
-
-* [ ] 2017 - 7 attacks, 2015 - 8 attacks, strategies to try [1,1,1,...,1]; 
-    2017: [3,4] 2015: [4,4];  2017: [2, 2, 3] 2015: [2, 2, 4]
-
-* [ ] methods to make comparison graphs for the report
-
 # Structure of the repository
 ```txt
 cil-intrusion-detection/
