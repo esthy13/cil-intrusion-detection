@@ -43,32 +43,37 @@ def train_and_evaluate_DER(
     # e.g., if there are 3 tasks: a_matrix = [[a_0, a_1, a_2], [a_1, a_1, a_2], [a_2, a_2, a_2]]
     a_matrix = np.zeros((len(tasks), len(tasks)))
 
-    for task_id, classes in enumerate(tasks):
+    for task_id, task_classes in enumerate(tasks):
 
         train_norm = trainset.copy()
         test_norm = testset.copy()
 
         # update classifier and optimizer
-        model.update_classifier(len(classes))
+        model.update_classifier(len(task_classes))
         model.classifier = model.classifier.to(device)
 
         #TODO modify optimizer like margarita told you to do it
         lr = 1e-5 if task_id == 0 else 1e-3
         optimizer = torch.optim.Adam(model.parameters(), lr=lr ) 
-        # scheduler = torch.optim.lr_scheduler.CosineAnnealingLR( optimizer, 
-        # T_max=epochs, eta_min=lr * 0.01 )
+        scheduler = torch.optim.lr_scheduler.CosineAnnealingLR(
+            optimizer,
+            T_max=epochs,
+            eta_min=lr * 0.01
+        )
+
         normalizer = UpToNormalizer()
 
         # up-to-normalization
-        task_dataset = build_task(trainset, classes)
+        task_dataset = build_task(trainset, task_classes)
         task_x = np.stack([task_dataset[i][0].numpy() for i in range(len(task_dataset))])
+        
         normalizer.update(task_x)
 
         train_norm.set_features(normalizer.normalize(trainset.x))
         test_norm.set_features(normalizer.normalize(testset.x))
 
         train_loader = DataLoader(
-            build_task(train_norm, classes),
+            build_task(train_norm, task_classes),
             batch_size=128,
             shuffle=True
         )
@@ -78,7 +83,7 @@ def train_and_evaluate_DER(
 
         # good I am evaluating on the test set!!!
         # evaluate the model on the current task
-        acc, f1, y_true, y_pred = evaluate(model, test_norm, classes, device)
+        acc, f1, y_true, y_pred = evaluate(model, test_norm, task_classes, device)
 
         # update the history
         acc_history.append(acc)
@@ -91,7 +96,7 @@ def train_and_evaluate_DER(
             a_matrix[task_id, prev_task_id] = prev_acc
 
         # new attacks = classes - seen_classes
-        new_classes = [c for c in classes if c not in seen_classes]
+        new_classes = [c for c in task_classes if c not in seen_classes]
 
         print_task_results(task_id+1, new_classes, seen_classes, acc, f1)
 

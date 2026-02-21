@@ -6,6 +6,7 @@ import torch.nn.functional as F
 from torch.utils.data import DataLoader
 from src.metrics import accuracy, macro_f1
 from src.task_builder import build_task
+from sklearn.metrics import accuracy_score, f1_score
 
 class ReservoirBuffer:
     def __init__(self, size):
@@ -68,8 +69,8 @@ class ReservoirBuffer:
 
         return indices, labels, logits
 
-def train_task(model, loader, reservoir_buffer, optimizer, device,
-               alpha=0.5, beta=0.5, epochs=1,):
+def train_task(model, loader, buffer, optimizer, scheduler, device,
+               alpha=0.5, beta=0.5, epochs=1):
 
     ce = nn.CrossEntropyLoss()
     model.train()
@@ -84,7 +85,7 @@ def train_task(model, loader, reservoir_buffer, optimizer, device,
             loss = ce(logits, y)
 
             # ----- DER++ Replay -----
-            buf = reservoir_buffer.sample(len(x), model.classifier.out_features)
+            buf = buffer.sample(len(x), model.classifier.out_features)
 
             if buf is not None:
                 replay_indices, replay_labels, replay_logits = buf
@@ -117,7 +118,7 @@ def train_task(model, loader, reservoir_buffer, optimizer, device,
             optimizer.zero_grad()
             loss.backward()
             optimizer.step()
-            # scheduler.step()
+            scheduler.step()
 
             # ----- Add current batch to buffer -----
             original_indices = [
@@ -128,13 +129,13 @@ def train_task(model, loader, reservoir_buffer, optimizer, device,
                 )
             ]
 
-            reservoir_buffer.add(original_indices, y, logits)
+            buffer.add(original_indices, y, logits)
 
-def evaluate(model, dataset, seen_classes, device, batch_size=256):
+def evaluate(model, dataset, seen_classes, device):
     model.eval()
 
     eval_dataset = build_task(dataset, seen_classes)
-    loader = DataLoader(eval_dataset, batch_size=batch_size, shuffle=False)
+    loader = DataLoader(eval_dataset, batch_size=256, shuffle=False)
 
     all_preds, all_targets = [], []
 
@@ -142,17 +143,15 @@ def evaluate(model, dataset, seen_classes, device, batch_size=256):
         for x, y in loader:
             x = x.to(device)
             logits, _ = model(x)
+            preds = logits.argmax(1).cpu().numpy()
 
-            preds = logits.argmax(dim=1).cpu().numpy()
             all_preds.append(preds)
-            all_targets.append(y.cpu().numpy())
+            all_targets.append(y.numpy())
 
     all_preds = np.concatenate(all_preds)
     all_targets = np.concatenate(all_targets)
 
-    print(all_preds)
-
-    acc = accuracy(all_targets, all_preds)     
-    f1  = macro_f1(all_targets, all_preds)     
+    acc = accuracy_score(all_targets, all_preds)
+    f1  = f1_score(all_targets, all_preds, average="macro")
 
     return acc, f1, all_targets, all_preds

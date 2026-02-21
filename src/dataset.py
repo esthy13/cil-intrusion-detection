@@ -9,9 +9,9 @@ from torch.utils.data import Dataset
 def trial():
     print("This is a trail method")
 
-# dataset wrapper
+# class from Esther
 class IDSBaseDataset(Dataset):
-    def __init__(self, root_dir, split="train", label="Label", benign = "benign"):
+    def __init__(self, root_dir, split="train", benign_class="benign", target_class="Label"):
         """
         root_dir: path to 2017/
         split: 'train' or 'test'
@@ -22,21 +22,20 @@ class IDSBaseDataset(Dataset):
 
         df = pd.concat([pd.read_csv(c) for c in csvs], ignore_index=True)
 
-        labels = list(df[label].unique())
-        self.benign = benign
+        labels = list(df["Label"].unique())
 
-        if benign not in labels:
-            raise ValueError(f"Dataset must contain a {benign} class")
+        if "benign" not in labels:
+            raise ValueError("Dataset must contain a 'benign' class")
 
         # Enforcing benign as class 0
-        labels = [benign] + sorted([l for l in labels if l != benign])
+        labels = ["benign"] + sorted([l for l in labels if l != "benign"])
 
         self.classes = labels
         self.class_to_idx = {c: i for i, c in enumerate(self.classes)}
 
-        self.x = df.drop(columns=[label]).values.astype(np.float32)
+        self.x = df.drop(columns=["Label"]).values.astype(np.float32)
         self.y = np.array(
-            [self.class_to_idx[label] for label in df[label]],
+            [self.class_to_idx[label] for label in df["Label"]],
             dtype=np.int64
         )
 
@@ -48,7 +47,6 @@ class IDSBaseDataset(Dataset):
     def set_features(self, new_x):
         assert new_x.shape == self.x.shape
         self.x = new_x.astype(np.float32)
-
     def copy(self):
         return copy.deepcopy(self)
 
