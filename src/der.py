@@ -150,7 +150,7 @@ def evaluate(model, dataset, seen_classes, device, batch_size=256):
     all_preds = np.concatenate(all_preds)
     all_targets = np.concatenate(all_targets)
 
-    acc = accuracy(all_targets, all_preds)
-    f1  = macro_f1(all_targets, all_preds)
+    acc = accuracy(all_targets, eval_dataset.y)
+    f1  = macro_f1(all_targets, eval_dataset.y)
 
     return acc, f1, all_targets, all_preds
