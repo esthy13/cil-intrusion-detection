@@ -142,15 +142,15 @@ def evaluate(model, dataset, seen_classes, device, batch_size=256):
         for x, y in loader:
             x = x.to(device)
             logits, _ = model(x)
-            preds = logits.argmax(1).cpu().numpy()
 
+            preds = logits.argmax(dim=1).cpu().numpy()
             all_preds.append(preds)
-            all_targets.append(y.numpy())
+            all_targets.append(y.cpu().numpy())
 
     all_preds = np.concatenate(all_preds)
     all_targets = np.concatenate(all_targets)
 
-    acc = accuracy(all_targets, eval_dataset.y)
-    f1  = macro_f1(all_targets, eval_dataset.y)
+    acc = accuracy(all_targets, all_preds)     # or accuracy(all_targets, all_preds) depending on your function signature
+    f1  = macro_f1(all_targets, all_preds)     # same note as above
 
     return acc, f1, all_targets, all_preds
