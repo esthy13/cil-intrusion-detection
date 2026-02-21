@@ -54,9 +54,9 @@ def train_and_evaluate_DER(
 
         #TODO modify optimizer like margarita told you to do it
         lr = 1e-5 if task_id == 0 else 1e-3
-        optimizer = torch.optim.AdamW( model.parameters(), lr=lr ) 
-        scheduler = torch.optim.lr_scheduler.CosineAnnealingLR( optimizer, 
-        T_max=epochs, eta_min=lr * 0.01 )
+        optimizer = torch.optim.Adam(model.parameters(), lr=lr ) 
+        # scheduler = torch.optim.lr_scheduler.CosineAnnealingLR( optimizer, 
+        # T_max=epochs, eta_min=lr * 0.01 )
         normalizer = UpToNormalizer()
 
         # up-to-normalization
@@ -74,7 +74,7 @@ def train_and_evaluate_DER(
         )
 
         # train model on the current task
-        train_task(model, train_loader, reservoir_buffer, optimizer, scheduler, device, epochs)
+        train_task(model, train_loader, reservoir_buffer, optimizer, device, epochs)
 
         # good I am evaluating on the test set!!!
         # evaluate the model on the current task
@@ -87,7 +87,7 @@ def train_and_evaluate_DER(
         # update the accuracy matrix with the accuracy for all previous tasks
         for prev_task_id in range(task_id + 1):  # evaluate the current model on all previous tasks
             prev_seen_classes = tasks[prev_task_id]
-            prev_acc, _, _, _ = evaluate(model, testset, prev_seen_classes, device)
+            prev_acc, _, _, _ = evaluate(model, test_norm, prev_seen_classes, device)
             a_matrix[task_id, prev_task_id] = prev_acc
 
         # new attacks = classes - seen_classes

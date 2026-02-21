@@ -68,7 +68,7 @@ class ReservoirBuffer:
 
         return indices, labels, logits
 
-def train_task(model, loader, reservoir_buffer, optimizer, scheduler, device,
+def train_task(model, loader, reservoir_buffer, optimizer, device,
                alpha=0.5, beta=0.5, epochs=1,):
 
     ce = nn.CrossEntropyLoss()
@@ -117,7 +117,7 @@ def train_task(model, loader, reservoir_buffer, optimizer, scheduler, device,
             optimizer.zero_grad()
             loss.backward()
             optimizer.step()
-            scheduler.step()
+            # scheduler.step()
 
             # ----- Add current batch to buffer -----
             original_indices = [
