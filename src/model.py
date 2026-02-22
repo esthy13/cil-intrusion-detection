@@ -1,3 +1,5 @@
+import os
+import torch
 import torch.nn as nn 
 import torch.nn.functional as F 
 
@@ -32,6 +34,13 @@ class CILModel(nn.Module):
             new.bias.data[:old.out_features] = old.bias.data
 
         self.classifier = new
+
+    def save_weights(self, file_path):
+        # Ensure the directory exists
+        os.makedirs(os.path.dirname(file_path), exist_ok=True)
+
+        # Save the model state dict to a .pt file
+        torch.save(self.state_dict(), file_path)
 
 # Margarita
 class IDSNet(nn.Module):

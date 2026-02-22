@@ -26,6 +26,7 @@ def train_and_evaluate_DER(
 
     os.makedirs("results/confusion_matrices", exist_ok=True)
     os.makedirs("results/training", exist_ok=True)
+    os.makedirs("results/weights", exist_ok=True)
 
     # build scenario from attack pattern
     tasks, attack_pattern = build_scenario(all_classes, attack_pattern, benign_class=trainset.benign)
@@ -102,6 +103,10 @@ def train_and_evaluate_DER(
 
         seen_classes += new_classes
 
+        # saving the model weights here
+        weights_path = f"results/weights/DER_scenario{scenario_id}_task{task_id}.weights.h5"
+        model.save_weights(weights_path)
+
     # compute metrics for this scenario
     forgetting_measure = compute_forgetting(a_matrix)
     avg_acc = average_accuracy(acc_history)
@@ -112,5 +117,3 @@ def train_and_evaluate_DER(
     save_training_results("DER++", attack_pattern, acc_history, f1_history,
     avg_acc, forgetting_measure, scenario_id, out_json)
     print_final_metrics(forgetting_measure, avg_acc, avg_f1)
-
-    # TODO save the weights for each scenario and upload them somewhere (maybe github) if they don't weight too much
