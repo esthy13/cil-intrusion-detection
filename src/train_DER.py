@@ -79,7 +79,7 @@ def train_and_evaluate_DER(
         )
 
         # train model on the current task
-        train_task(model, train_loader, reservoir_buffer, optimizer, device, epochs)
+        train_task(model, train_loader, reservoir_buffer, optimizer, scheduler, device=device, epochs= epochs)
 
         # good I am evaluating on the test set!!!
         # evaluate the model on the current task

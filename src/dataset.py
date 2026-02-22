@@ -22,22 +22,24 @@ class IDSBaseDataset(Dataset):
 
         df = pd.concat([pd.read_csv(c) for c in csvs], ignore_index=True)
 
-        labels = list(df["Label"].unique())
+        labels = list(df[target_class].unique())
 
-        if "benign" not in labels:
-            raise ValueError("Dataset must contain a 'benign' class")
+        if benign_class not in labels:
+            raise ValueError(f"Dataset must contain a {benign_class} class")
 
         # Enforcing benign as class 0
-        labels = ["benign"] + sorted([l for l in labels if l != "benign"])
+        labels = [benign_class] + sorted([l for l in labels if l != benign_class])
 
         self.classes = labels
         self.class_to_idx = {c: i for i, c in enumerate(self.classes)}
 
-        self.x = df.drop(columns=["Label"]).values.astype(np.float32)
+        self.x = df.drop(columns=[target_class]).values.astype(np.float32)
         self.y = np.array(
-            [self.class_to_idx[label] for label in df["Label"]],
+            [self.class_to_idx[label] for label in df[target_class]],
             dtype=np.int64
         )
+
+        self.benign = benign_class
 
     def __len__(self):
         return len(self.y)
