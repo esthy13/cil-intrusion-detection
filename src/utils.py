@@ -37,8 +37,8 @@ def print_task_results(task_num, new_attacks, seen_attacks, accuracy, acc_attack
     print(f"   --- Task {task_num} ---\n\n",
         f"   New attacks: {new_attacks}\n",
         f"   Seen so far: {seen_attacks}\n\n",
-        f"   accuracy: {acc_attack_trunc:.2f}\n",
-        f"   attack_accuracy: {accuracy_trunc:.2f}\n",
+        f"   accuracy: {accuracy_trunc:.2f}\n",
+        f"   attack_accuracy: {acc_attack_trunc:.2f}\n",
         f"   macro-f1: {macro_f1_trunc:.2f}\n\n")
 
 def print_scenario(scenario_id, attack_pattern):

@@ -4,7 +4,6 @@ import numpy as np
 import torch.nn as nn 
 import torch.nn.functional as F 
 from torch.utils.data import DataLoader
-from src.metrics import accuracy, macro_f1
 from src.task_builder import build_task
 from sklearn.metrics import accuracy_score, f1_score
 
