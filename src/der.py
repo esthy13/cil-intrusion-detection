@@ -155,3 +155,12 @@ def evaluate(model, dataset, seen_classes, device):
     f1  = f1_score(all_targets, all_preds, average="macro")
 
     return acc, f1, all_targets, all_preds
+
+def create_weighted_sampler(dataset):
+    # Use the class weights stored in the dataset
+    sample_weights = [dataset.class_weights[label] for label in dataset.y]
+
+    # Create the WeightedRandomSampler
+    sampler = WeightedRandomSampler(sample_weights, num_samples=len(sample_weights), replacement=True)
+    
+    return sampler
