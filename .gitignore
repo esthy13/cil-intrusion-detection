@@ -1,6 +1,7 @@
 # dataset folder
 data/processed/2017
 data/processed/2015
+data/raw/2017.zip
 
 # Byte-compiled / optimized / DLL files
 __pycache__/
