@@ -11,7 +11,7 @@ def trial():
 
 # class from Esther
 class IDSBaseDataset(Dataset):
-    def __init__(self, root_dir, split="train", benign_class="benign", target_class="Label"):
+    def __init__(self, root_dir, split="train", target_col="Label", benign_class="benign"):
         """
         root_dir: path to 2017/
         split: 'train' or 'test'
@@ -22,24 +22,31 @@ class IDSBaseDataset(Dataset):
 
         df = pd.concat([pd.read_csv(c) for c in csvs], ignore_index=True)
 
-        labels = list(df[target_class].unique())
+        if target_col not in df.columns:
+            raise ValueError(f"Dataset must contain a '{target_col}' column")
 
-        if benign_class not in labels:
-            raise ValueError(f"Dataset must contain a {benign_class} class")
+        # Count samples per label
+        label_counts = df[target_col].value_counts()
 
-        # Enforcing benign as class 0
-        labels = [benign_class] + sorted([l for l in labels if l != benign_class])
+        if benign_class not in label_counts.index:
+            raise ValueError("Dataset must contain a '{benign_class}' class")
 
+        # Sort labels by frequency (descending)
+        sorted_labels = label_counts.sort_values(ascending=False).index.tolist()
+
+        # Enforce 'benign' as class 0
+        sorted_labels.remove(benign_class)
+        labels = [benign_class] + sorted_labels
+
+        self.benign = benign_class
         self.classes = labels
         self.class_to_idx = {c: i for i, c in enumerate(self.classes)}
 
-        self.x = df.drop(columns=[target_class]).values.astype(np.float32)
+        self.x = df.drop(columns=[target_col]).values.astype(np.float32)
         self.y = np.array(
-            [self.class_to_idx[label] for label in df[target_class]],
+            [self.class_to_idx[label] for label in df[target_col]],
             dtype=np.int64
         )
-
-        self.benign = benign_class
 
     def __len__(self):
         return len(self.y)
@@ -51,6 +58,7 @@ class IDSBaseDataset(Dataset):
         self.x = new_x.astype(np.float32)
     def copy(self):
         return copy.deepcopy(self)
+
 
 #Class from Margarita
 class TaskDatasetView(Dataset):

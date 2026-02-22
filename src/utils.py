@@ -3,6 +3,7 @@ import argparse
 import torch
 import numpy as np
 import random
+import math
 
 def save_training_results(strategy_name, attack_pattern, acc_history, f1_history,
     avg_acc, forgetting_measure, scenario_id, json_path):
@@ -30,6 +31,8 @@ def print_task_results(task_num, new_attacks, seen_attacks, accuracy, macro_f1):
     accuracy: 0.00
     macro-f1: 0.00
     """
+    accuracy_trunc = math.trunc(accuracy*100)/100 
+    macro_f1_trunc = math.trunc(macro_f1*100)/100 
     print(f"   --- Task {task_num} ---\n\n",
         f"   New attacks: {new_attacks}\n",
         f"   Seen so far: {seen_attacks}\n\n",

@@ -3,18 +3,15 @@ import torch.nn.functional as F
 
 class CILModel(nn.Module):
     def __init__(self, input_dim, feature_dim=128):
-        # input_dim depends on the dataset (number of column features of the dataset)
-        # feature_dim 128
-
         super().__init__()
 
         self.feature_extractor = nn.Sequential(
-            nn.Linear(input_dim, 256), # expanding dimension for better feature learning
+            nn.Linear(input_dim, 256),
             nn.ReLU(),
-            nn.Linear(256, feature_dim) # compressing to feature_dim for better generalization and memory efficiency
+            nn.Linear(256, feature_dim)
         )
 
-        self.classifier = None  # only for training
+        self.classifier = None  # SOLO para entrenamiento
 
     def forward(self, x):
         feats = self.feature_extractor(x)

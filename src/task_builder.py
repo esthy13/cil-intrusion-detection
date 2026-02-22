@@ -22,7 +22,7 @@ def build_task(dataset, class_names):
     class_ids = [dataset.class_to_idx[c] for c in class_names]
     idxs = np.where(np.isin(dataset.y, class_ids))[0]
     return RemappedSubset(dataset, idxs, class_ids)
-    
+
 def build_scenario( all_classes, attacks_pattern, benign_class="benign"):
     """
     all_classes: ordered list of class names (benign must be first)
