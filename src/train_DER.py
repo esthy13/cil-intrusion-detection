@@ -4,7 +4,7 @@ import numpy as np
 from src.task_builder import build_scenario, UpToNormalizer, build_task
 from src.model import CILModel
 from src.der import ReservoirBuffer, train_task, evaluate
-from src.utils import print_task_results, save_training_results
+from src.utils import print_task_results, save_training_results, print_final_metrics
 from src.metrics import compute_forgetting, average_accuracy
 from torch.utils.data import DataLoader
 
@@ -105,10 +105,12 @@ def train_and_evaluate_DER(
     # compute metrics for this scenario
     forgetting_measure = compute_forgetting(a_matrix)
     avg_acc = average_accuracy(acc_history)
+    avg_f1 = np.mean(f1_history)
 
     # save results for this scenario
     out_json = f"results/training/DER_scenario_{scenario_id+1}_results.json"
     save_training_results("DER++", attack_pattern, acc_history, f1_history,
     avg_acc, forgetting_measure, scenario_id, out_json)
+    print_final_metrics(forgetting_measure, avg_acc, avg_f1)
 
     # TODO save the weights for each scenario and upload them somewhere (maybe github) if they don't weight too much

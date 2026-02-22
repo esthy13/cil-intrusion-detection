@@ -45,6 +45,14 @@ def print_scenario(scenario_id, attack_pattern):
 def print_strategy(strategy_name):
     print(f"Strategy {strategy_name} ========\n\n")
 
+def print_final_metrics(forgetting, avg_acc, avg_f1):
+    forgetting_trunc = math.trunc(forgetting*100)/100
+    avg_acc_trunc = math.trunc(avg_acc*100)/100 
+    avg_f1_trunc = math.trunc(avg_f1*100)/100 
+    print(f"Forgetting measure: {forgetting_trunc:.2f}")
+    print(f"Average accuracy: {avg_acc_trunc:.2f}")
+    print(f"Average macro-f1: {avg_f1_trunc:.2f}")
+
 def get_device():
     if torch.cuda.is_available():
         return torch.device("cuda")

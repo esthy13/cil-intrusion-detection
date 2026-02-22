@@ -74,3 +74,10 @@ def compute_cm(y_true, y_pred, seen_classes, show_plot=True):
     plt.show()
 
   return cm
+
+def average_accuracy(f1_history):
+
+  """
+  f1_history: list of macro_f1 up to current task
+  """
+  return np.mean(f1_history)
