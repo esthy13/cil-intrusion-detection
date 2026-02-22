@@ -36,6 +36,7 @@ def train_and_evaluate_DER(
     reservoir_buffer = ReservoirBuffer(size=memory_size)
 
     acc_history = []
+    acc_attack_history = []
     f1_history = []
     seen_classes = []
 
@@ -43,6 +44,7 @@ def train_and_evaluate_DER(
     # This will have dimensions (number_of_tasks, number_of_tasks)
     # e.g., if there are 3 tasks: a_matrix = [[a_0, a_1, a_2], [a_1, a_1, a_2], [a_2, a_2, a_2]]
     a_matrix = np.zeros((len(tasks), len(tasks)))
+    attack_accuracy = np.zeros((len(tasks), len(tasks)))
 
     for task_id, task_classes in enumerate(tasks):
 
@@ -84,11 +86,14 @@ def train_and_evaluate_DER(
 
         # good I am evaluating on the test set!!!
         # evaluate the model on the current task
+        attack_classes = [cls for cls in task_classes if cls != trainset.benign]
         acc, f1, y_true, y_pred = evaluate(model, test_norm, task_classes, device)
+        acc_attack, _, _, _  = evaluate(model, test_norm, task_classes, device)
 
         # update the history
         acc_history.append(acc)
         f1_history.append(f1)
+        acc_attack_history.append(acc_attack)
 
         # update the accuracy matrix with the accuracy for all previous tasks
         for prev_task_id in range(task_id + 1):  # evaluate the current model on all previous tasks
@@ -96,10 +101,17 @@ def train_and_evaluate_DER(
             prev_acc, _, _, _ = evaluate(model, test_norm, prev_seen_classes, device)
             a_matrix[task_id, prev_task_id] = prev_acc
 
+            # Now, calculate attack accuracy by excluding benign classes
+            attack_classes = [cls for cls in prev_seen_classes if cls != trainset.benign]
+            attack_acc, _, _, _ = evaluate(model, test_norm, attack_classes, device)
+            attack_accuracy[task_id, prev_task_id] = attack_acc
+
+
+
         # new attacks = classes - seen_classes
         new_classes = [c for c in task_classes if c not in seen_classes]
 
-        print_task_results(task_id+1, new_classes, seen_classes, acc, f1)
+        print_task_results(task_id+1, new_classes, seen_classes, acc, acc_attack, f1)
 
         seen_classes += new_classes
 
@@ -110,10 +122,11 @@ def train_and_evaluate_DER(
     # compute metrics for this scenario
     forgetting_measure = compute_forgetting(a_matrix)
     avg_acc = average_accuracy(acc_history)
+    forgetting_attack = compute_forgetting(attack_accuracy)
     avg_f1 = np.mean(f1_history)
 
     # save results for this scenario
     out_json = f"results/training/DER_scenario_{scenario_id+1}_results.json"
     save_training_results("DER++", attack_pattern, acc_history, f1_history,
     avg_acc, forgetting_measure, scenario_id, out_json)
-    print_final_metrics(forgetting_measure, avg_acc, avg_f1)
+    print_final_metrics(forgetting_measure, forgetting_attack, avg_acc, avg_f1)

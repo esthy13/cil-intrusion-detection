@@ -21,7 +21,7 @@ def save_training_results(strategy_name, attack_pattern, acc_history, f1_history
     with open(json_path, "w") as f:
         json.dump(results, f, indent=2)
 
-def print_task_results(task_num, new_attacks, seen_attacks, accuracy, macro_f1):
+def print_task_results(task_num, new_attacks, seen_attacks, accuracy, acc_attack, macro_f1):
     """
      --- Task 1 ---
     
@@ -32,12 +32,14 @@ def print_task_results(task_num, new_attacks, seen_attacks, accuracy, macro_f1):
     macro-f1: 0.00
     """
     accuracy_trunc = math.trunc(accuracy*100)/100 
+    acc_attack_trunc = math.trunc(acc_attack*100)/100 
     macro_f1_trunc = math.trunc(macro_f1*100)/100 
     print(f"   --- Task {task_num} ---\n\n",
         f"   New attacks: {new_attacks}\n",
         f"   Seen so far: {seen_attacks}\n\n",
-        f"   accuracy: {accuracy:.2f}\n",
-        f"   macro-f1: {macro_f1:.2f}\n\n")
+        f"   accuracy: {acc_attack_trunc:.2f}\n",
+        f"   attack_accuracy: {accuracy_trunc:.2f}\n",
+        f"   macro-f1: {macro_f1_trunc:.2f}\n\n")
 
 def print_scenario(scenario_id, attack_pattern):
     print(f"=== Scenario {scenario_id} - {attack_pattern} ===\n\n")
@@ -45,11 +47,13 @@ def print_scenario(scenario_id, attack_pattern):
 def print_strategy(strategy_name):
     print(f"Strategy {strategy_name} ========\n\n")
 
-def print_final_metrics(forgetting, avg_acc, avg_f1):
+def print_final_metrics(forgetting, forgetting_attack, avg_acc, avg_f1):
     forgetting_trunc = math.trunc(forgetting*100)/100
+    forgetting_attack_trunc = math.trunc(forgetting_attack*100)/100
     avg_acc_trunc = math.trunc(avg_acc*100)/100 
     avg_f1_trunc = math.trunc(avg_f1*100)/100 
     print(f"Forgetting measure: {forgetting_trunc:.2f}")
+    print(f"Forgetting attack measure: {forgetting_attack_trunc:.2f}")
     print(f"Average accuracy: {avg_acc_trunc:.2f}")
     print(f"Average macro-f1: {avg_f1_trunc:.2f}")
 
