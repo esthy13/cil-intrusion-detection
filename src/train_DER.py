@@ -88,7 +88,7 @@ def train_and_evaluate_DER(
         # evaluate the model on the current task
         attack_classes = [cls for cls in task_classes if cls != trainset.benign]
         acc, f1, y_true, y_pred = evaluate(model, test_norm, task_classes, device)
-        acc_attack, _, _, _  = evaluate(model, test_norm, task_classes, device)
+        acc_attack, _, _, _  = evaluate(model, test_norm, attack_classes, device)
 
         # update the history
         acc_history.append(acc)
