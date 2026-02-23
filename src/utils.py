@@ -5,16 +5,19 @@ import numpy as np
 import random
 import math
 
-def save_training_results(strategy_name, attack_pattern, acc_history, f1_history,
-    avg_acc, forgetting_measure, scenario_id, json_path):
+def save_training_results(dataset_name, strategy_name, attack_pattern, acc_history, f1_history,
+    avg_acc, avg_attack_acc, forgetting_measure,forgetting_attack, scenario_id, json_path):
     results = {
+            "dataset": dataset_name,
             "strategy_name": strategy_name,
             "scenario_pattern": attack_pattern,
             "metrics": {
                 "accuracy": acc_history,
                 "f1": f1_history,
                 "average_accuracy": avg_acc,
-                "forgetting_measure": forgetting_measure
+                "average_attack_accuracy": avg_attack_acc,
+                "forgetting_measure": forgetting_measure,
+                "forgetting_attack_measure": forgetting_attack
             }
         }
 
