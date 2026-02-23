@@ -55,7 +55,7 @@ def print_final_metrics(forgetting, forgetting_attack, avg_acc, avg_f1):
     print(f"Forgetting measure: {forgetting_trunc:.2f}")
     print(f"Forgetting attack measure: {forgetting_attack_trunc:.2f}")
     print(f"Average accuracy: {avg_acc_trunc:.2f}")
-    print(f"Average macro-f1: {avg_f1_trunc:.2f}")
+    print(f"Average macro-f1: {avg_f1_trunc:.2f}\n")
 
 def get_device():
     if torch.cuda.is_available():
