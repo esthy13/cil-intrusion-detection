@@ -5,68 +5,9 @@ import matplotlib.pyplot as plt
 
 def line_plot(res_path="results/training"):
 
-    # Structure: dataset -> strategy -> metrics
     results = {}
 
-    # Loop over all JSON files
-    for file_name in os.listdir(res_path):
-        if file_name.endswith(".json"):
-            file_path = os.path.join(res_path, file_name)  # FIXED (was 'res')
-
-            with open(file_path, "r") as f:
-                data = json.load(f)
-
-            dataset = data.get("dataset", "unknown_dataset")
-            strategy = data["strategy_name"]
-            avg_acc = data["metrics"]["average_accuracy"]
-            forgetting = data["metrics"]["forgetting_measure"]
-
-            # Initialize dataset
-            if dataset not in results:
-                results[dataset] = {}
-
-            # Initialize strategy inside dataset
-            if strategy not in results[dataset]:
-                results[dataset][strategy] = {
-                    "scenarios": [],
-                    "avg_accuracy": [],
-                    "forgetting": []
-                }
-
-            # Append values
-            strategy_data = results[dataset][strategy]
-            scenario_id = len(strategy_data["scenarios"]) + 1
-
-            strategy_data["scenarios"].append(scenario_id)
-            strategy_data["avg_accuracy"].append(avg_acc)
-            strategy_data["forgetting"].append(forgetting)
-
-    # ---------------- PLOTTING ----------------
-    for dataset, strategies in results.items():
-        for strategy, values in strategies.items():
-
-            plt.figure(figsize=(8, 5))
-
-            plt.plot(values["scenarios"], values["avg_accuracy"],
-                     marker="o", label="Average Accuracy")
-
-            plt.plot(values["scenarios"], values["forgetting"],
-                     marker="s", label="Forgetting Measure")
-
-            plt.xlabel("Scenario")
-            plt.ylabel("Metric Value")
-            plt.title(f"{dataset} - {strategy}")
-            plt.legend()
-            plt.grid(True)
-            plt.tight_layout()
-            plt.show()
-
-def bar_plot(target_scenario, res_path="results/training"):
-
-    # Structure: dataset -> strategy -> metrics
-    results = {}
-
-    # Read all JSON files
+    # --------- LOAD DATA ----------
     for file_name in os.listdir(res_path):
         if file_name.endswith(".json"):
             file_path = os.path.join(res_path, file_name)
@@ -75,10 +16,75 @@ def bar_plot(target_scenario, res_path="results/training"):
                 data = json.load(f)
 
             dataset = data.get("dataset", "unknown_dataset")
-            scenario_id = data.get("scenario_id")
+            strategy = data["strategy_name"]
+            scenario_pattern = data.get("scenario_pattern", [])
 
-            # Filter only by scenario
-            if scenario_id == target_scenario:
+            avg_acc = data["metrics"]["average_accuracy"]
+            forgetting = data["metrics"]["forgetting_measure"]
+
+            if dataset not in results:
+                results[dataset] = {}
+
+            if strategy not in results[dataset]:
+                results[dataset][strategy] = {
+                    "patterns": [],
+                    "avg_accuracy": [],
+                    "forgetting": []
+                }
+
+            strategy_data = results[dataset][strategy]
+
+            strategy_data["patterns"].append(scenario_pattern)
+            strategy_data["avg_accuracy"].append(avg_acc)
+            strategy_data["forgetting"].append(forgetting)
+
+    # --------- PLOTTING ----------
+    for dataset, strategies in results.items():
+        for strategy, values in strategies.items():
+
+            num_points = len(values["avg_accuracy"])
+            x_positions = list(range(1, num_points + 1))  # integers only
+
+            plt.figure(figsize=(10, 5))
+
+            plt.plot(x_positions, values["avg_accuracy"],
+                     marker="o", label="Average Accuracy")
+
+            plt.plot(x_positions, values["forgetting"],
+                     marker="s", label="Forgetting Measure")
+
+            # Set integer ticks
+            plt.xticks(
+                x_positions,
+                [str(p) for p in values["patterns"]],
+                rotation=45,
+                ha="right"
+            )
+
+            plt.xlabel("Scenario Pattern")
+            plt.ylabel("Metric Value")
+            plt.title(f"{dataset} - {strategy}")
+            plt.legend()
+            plt.grid(True)
+            plt.tight_layout()
+            plt.show()
+            
+def bar_plot(target_scenario_pattern, res_path="results/training"):
+
+    results = {}
+
+    for file_name in os.listdir(res_path):
+        if file_name.endswith(".json"):
+            file_path = os.path.join(res_path, file_name)
+
+            with open(file_path, "r") as f:
+                data = json.load(f)
+
+            dataset = data.get("dataset", "unknown_dataset")
+            scenario_pattern = tuple(data.get("scenario_pattern", []))
+
+            # Filter using scenario_pattern
+            if scenario_pattern == tuple(target_scenario_pattern):
 
                 strategy = data["strategy_name"]
                 metrics = data["metrics"]
@@ -93,9 +99,9 @@ def bar_plot(target_scenario, res_path="results/training"):
                     "forgetting_attack": metrics.get("forgetting_attack_measure", 0),
                 }
 
-    # --------- PLOTTING ------------
-    for dataset, strategies in results.items():
+    # print("Collected results:", results)
 
+    for dataset, strategies in results.items():
         for strategy, values in strategies.items():
 
             labels = [
@@ -119,11 +125,10 @@ def bar_plot(target_scenario, res_path="results/training"):
 
             plt.xticks(x, labels, rotation=20)
             plt.ylabel("Metric Value")
-            plt.title(f"{dataset} - {strategy} - Scenario {target_scenario}")
+            plt.title(f"{dataset} - {strategy}")
             plt.ylim(0, 1)
             plt.grid(axis='y', linestyle='--', alpha=0.6)
 
-            # Add value labels
             for bar in bars:
                 height = bar.get_height()
                 plt.text(
