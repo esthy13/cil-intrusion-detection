@@ -47,6 +47,7 @@ class IDSBaseDataset(Dataset):
             [self.class_to_idx[label] for label in df[target_col]],
             dtype=np.int64
         )
+        self.name = os.path.basename(os.path.normpath(root_dir))
 
     def __len__(self):
         return len(self.y)

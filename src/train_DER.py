@@ -122,11 +122,13 @@ def train_and_evaluate_DER(
     # compute metrics for this scenario
     forgetting_measure = compute_forgetting(a_matrix)
     avg_acc = average_accuracy(acc_history)
+    avg_attack = average_accuracy(acc_attack_history)
     forgetting_attack = compute_forgetting(attack_accuracy)
     avg_f1 = np.mean(f1_history)
 
     # save results for this scenario
-    out_json = f"results/training/DER_scenario_{scenario_id+1}_results.json"
-    save_training_results("DER++", attack_pattern, acc_history, f1_history,
-    avg_acc, forgetting_measure, scenario_id, out_json)
+
+    out_json = f"results/training/{trainset.name}_DER_scenario_{scenario_id+1}_results.json"
+    save_training_results(trainset.name, "DER++", attack_pattern, acc_history, f1_history,
+    avg_acc, avg_attack, forgetting_measure,forgetting_attack, scenario_id, out_json)
     print_final_metrics(forgetting_measure, forgetting_attack, avg_acc, avg_f1)
