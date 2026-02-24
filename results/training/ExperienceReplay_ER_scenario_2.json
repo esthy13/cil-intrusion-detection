@@ -1,0 +1,55 @@
+{
+  "dataset": "CICIDS",
+  "strategy_name": "ExperienceReplay",
+  "scenario_pattern": [
+    [
+      "Normal",
+      "Analysis",
+      "Backdoor",
+      "DoS",
+      "Exploits",
+      "Fuzzers"
+    ],
+    [
+      "Normal",
+      "Analysis",
+      "Backdoor",
+      "DoS",
+      "Exploits",
+      "Fuzzers",
+      "Generic",
+      "Reconnaissance",
+      "Shellcode"
+    ]
+  ],
+  "metrics": {
+    "accuracy": [
+      [
+        0.8551793807677606,
+        0
+      ],
+      [
+        0.8553486594222683,
+        0.8523800092427544
+      ]
+    ],
+    "attack_accuracy": [
+      [
+        0.753766781315877,
+        0
+      ],
+      [
+        0.7523355153666925,
+        0.7942601474781001
+      ]
+    ],
+    "f1": [
+      0.675375668295776,
+      0.6398893950808862
+    ],
+    "average_accuracy": 0.8538643343325114,
+    "average_attack_accuracy": 0.7732978314223964,
+    "forgetting_measure": 0.0,
+    "forgetting_attack_measure": 0.0014312659491845237
+  }
+}
