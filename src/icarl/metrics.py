@@ -70,3 +70,5 @@ def save_training_results(dataset_name, strategy_name, attack_pattern, accuracy_
 
     with open(file_path, "w") as f:
         json.dump(results, f, indent=2)
+    
+    print(f'Results exported to {file_path}.')

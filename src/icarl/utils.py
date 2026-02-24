@@ -9,7 +9,7 @@ def print_strategy_pattern(strategy_name, attack_pattern):
     print(f"\n=== Strategy {strategy_name} - attack pattern {attack_pattern} ===\n")
 
 def print_final_metrics(accuracy_matrix, accuracy_attack_matrix, avg_acc, avg_attack_acc, forgetting_measure, forgetting_attack):
-    print("\naccuracy_matrix:\n", np.round(accuracy_matrix, 4))
+    print("accuracy_matrix:\n", np.round(accuracy_matrix, 4))
     print(f"\naccuracy_attack_matrix\n", np.round(accuracy_attack_matrix, 4))
     print(f"\navg_acc: {avg_acc:.4f}")
     print(f"\navg_attack_acc: {avg_attack_acc:.4f}")

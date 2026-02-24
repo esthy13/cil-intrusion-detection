@@ -395,10 +395,8 @@ def train_icarl(strategy_name, dataset_path, dataset_name, ouput_path, feature_d
         icarl.train_task(train_dataset_bce,  train_dataset_kd, epochs=epochs, batch_size=batch_size, lr=lr, lambda_kd=lambda_kd, T=T)
 
         # after training
-        #print('icarl update memory')
         icarl.update_memory(train_dataset_bce, batch_size=batch_size)
         memory_indices = np.concatenate(list(icarl.exemplars.values()))
-        #print('dataset update memory')
         datatrain.update_memory(memory_indices)
 
         icarl.compute_class_means(datatrain)
@@ -426,9 +424,5 @@ def train_icarl(strategy_name, dataset_path, dataset_name, ouput_path, feature_d
 
     print_final_metrics(accuracy_matrix, accuracy_attack_matrix, avg_acc, avg_attack_acc, forgetting_measure, forgetting_attack)
 
-    #print(f'average_accuracy: {avg_acc}')
-    #print(f'average_attack_accuracy: {avg_attack_acc}')
-    #print(f'average_forgetting: {forgetting_measure}')
-    #print(f'average_attack_forgetting: {forgetting_attack}')
-
+    #save results
     save_training_results(dataset_name, strategy_name, attack_pattern, accuracy_matrix, accuracy_attack_matrix, avg_acc, avg_attack_acc, forgetting_measure, forgetting_attack, ouput_path)

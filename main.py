@@ -35,9 +35,9 @@ def main():
                          **strategy_kwargs)
                        
     elif strategy_name == "er":
-        print(f'er')
+        print(f"er")
     elif strategy_name == "der":
-        print(f'der')
+        print(f"der")
     else:
         raise ValueError(f"Unknown strategy: {strategy_name}")
 
