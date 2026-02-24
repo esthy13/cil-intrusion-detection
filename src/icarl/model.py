@@ -13,7 +13,7 @@ class CILModel(nn.Module):
             nn.Linear(256, feature_dim)
         )
 
-        self.classifier = None
+        self.classifier = None  # SOLO para entrenamiento
 
     def forward(self, x):
         feats = self.feature_extractor(x)

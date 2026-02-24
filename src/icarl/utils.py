@@ -5,27 +5,6 @@ import numpy as np
 import random
 import math
 
-def save_training_results(dataset_name, strategy_name, attack_pattern, acc_history, f1_history,
-    avg_acc, avg_attack_acc, forgetting_measure,forgetting_attack, scenario_id, json_path):
-    
-
-    results = {
-            "dataset": dataset_name,
-            "strategy_name": strategy_name,
-            "scenario_pattern": attack_pattern,
-            "metrics": {
-                "accuracy": acc_history,
-                "f1": f1_history,
-                "average_accuracy": avg_acc,
-                "average_attack_accuracy": avg_attack_acc,
-                "forgetting_measure": forgetting_measure,
-                "forgetting_attack_measure": forgetting_attack
-            }
-        }
-
-    with open(json_path, "w") as f:
-        json.dump(results, f, indent=2)
-
 def print_task_results(task_num, new_attacks, seen_attacks, accuracy, acc_attack, macro_f1):
     """
      --- Task 1 ---
@@ -80,7 +59,7 @@ def build_parser():
     parser.register('type', None, str.lower)
     parser.add_argument('--strategy', type=str, default='er', choices=['er', 'icarl', 'der'],
                         help='CIL strategy to use (e.g., er, icarl, der)')
-    parser.add_argument('--dataset', type=int, default=2017, choices=[2015, 2017],
+    parser.add_argument('--dataset', type=str, default='2015', choices=['2015', '2017'],
                         help='Dataset to use')
     parser.add_argument("--scenarios",
     nargs="+",
@@ -89,9 +68,9 @@ def build_parser():
     help='Example: --scenarios "1+1+1" "2+2+2"')
     parser.add_argument("--epochs", type=int, default=10,
                         help="number of epochs to train per scenario")
-    parser.add_argument("--lr", type=float, default=0.01,
+    parser.add_argument("--lr", type=float, default=1e-3,
                         help = "learning rate")
-    parser.add_argument("--memory_size", type=int, default=7000,
+    parser.add_argument("--memory_size", type=int, default=10000,
                         help = "Total memory size for old classes")
     parser.add_argument("--feature_dim", type=int, default=128,
                         help = "feature embeddings output")
@@ -160,6 +139,36 @@ def parse_scenarios(raw_scenarios):
                 f"Invalid scenario format: '{s}'. Use format like 1+1+1"
             )
     return parsed
+
+def build_task_icarl(attack_pattern, attack_classes, classes_names, benign_class=0):
+
+    if sum(attack_pattern) != len(attack_classes):
+        raise ValueError("Attack pattern is inconsistence with total number of attacks")
+
+    current_index = 0
+    new_attacks = []
+    tasks_labels = []
+    attack_task_labels = []
+    id_to_class = {v: k for k, v in classes_names.items()}
+
+    # Loop start
+    for i, n_new in enumerate(attack_pattern):
+        if i == 0:
+            # Task 1: include benign + first attack chunk
+            new_attacks = attack_classes[:n_new]
+            current_index += n_new
+            attack_task_labels.append(new_attacks)
+            tasks_labels.append([benign_class] + new_attacks)
+        else:
+            new_attacks = attack_classes[current_index:current_index+n_new]
+            current_index += n_new
+            attack_task_labels.append(new_attacks)
+            tasks_labels.append(new_attacks)
+
+    # Convertir a etiquetas numéricas usando el diccionario
+    tasks_names = [[id_to_class[i] for i in task] for task in tasks_labels]
+
+    return tasks_labels, tasks_names
 
 
 
