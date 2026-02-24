@@ -57,9 +57,9 @@ def set_seed(seed=42):
 def build_parser():
     parser = argparse.ArgumentParser(description='Continous incremental learning training')
     parser.register('type', None, str.lower)
-    parser.add_argument('--strategy', type=str, default='er', choices=['er', 'icarl', 'der'],
+    parser.add_argument('--strategy', type=str, default='icarl', choices=['er', 'icarl', 'der'],
                         help='CIL strategy to use (e.g., er, icarl, der)')
-    parser.add_argument('--dataset', type=str, default='2015', choices=['2015', '2017'],
+    parser.add_argument('--dataset', type=str, default='2017', choices=[2015, 2017],
                         help='Dataset to use')
     parser.add_argument("--scenarios",
     nargs="+",
@@ -68,13 +68,13 @@ def build_parser():
     help='Example: --scenarios "1+1+1" "2+2+2"')
     parser.add_argument("--epochs", type=int, default=10,
                         help="number of epochs to train per scenario")
-    parser.add_argument("--lr", type=float, default=1e-3,
+    parser.add_argument("--lr", type=float, default=0.01,
                         help = "learning rate")
-    parser.add_argument("--memory_size", type=int, default=10000,
+    parser.add_argument("--memory_size", type=int, default=7000,
                         help = "Total memory size for old classes")
     parser.add_argument("--feature_dim", type=int, default=128,
                         help = "feature embeddings output")
-    parser.add_argument("--batch_size", type=int, default=64,
+    parser.add_argument("--batch_size", type=int, default=128,
                         help = "batch size")
 
     args, unknown = parser.parse_known_args()
