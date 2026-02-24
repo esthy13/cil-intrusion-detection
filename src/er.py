@@ -1,9 +1,13 @@
+import os
+import zipfile
 import torch
 import random
 import numpy as np
 import torch.nn as nn
+from src.icarl.utils import get_device 
 from torch.utils.data import DataLoader, Subset
-from src.utils import print_task_results
+from src.dataset import UNSWDataset
+from src.utils import print_task_results, print_strategy, print_scenario, print_final_metrics, save_training_results
 from src.metrics import accuracy, macro_f1, compute_cm, save_confusion_matrix, average_accuracy
 from src.model import CILModel
 from src.task_builder import UpToNormalizer, build_scenario, build_task
@@ -107,21 +111,90 @@ def update_buffer(buffer_indices, task_dataset, total_buffer_size, seen_classes)
 
     return new_buffer
 
+def unzip_if_needed(root_path, year):
+    zip_path = os.path.join(root_path, f"{year}.zip")
+    extract_path = os.path.join(root_path, f"{year}")
+
+    # If already extracted, do nothing
+    if os.path.isdir(extract_path):
+        return
+
+    # If zip exists but folder doesn't → unzip
+    if os.path.isfile(zip_path):
+        with zipfile.ZipFile(zip_path, 'r') as zip_ref:
+            zip_ref.extractall(root_path)
+    else:
+        raise FileNotFoundError(
+            f"Neither extracted folder nor zip file found for dataset {year} "
+            f"in {root_path}"
+        )
+
+
+def train_all_scenarios_er(
+    strategy_name,
+    dataset_path,
+    dataset_name,
+    output_path,
+    feature_dim,
+    memory_size,
+    epochs,
+    batch_size,
+    lr,
+    attack_patterns,
+    **kwargs
+):
+    device = get_device()
+
+    if dataset_name == 2015:
+        unzip_if_needed(dataset_path, 2015)
+        dataset = UNSWDataset.from_root_dir(
+            f"{dataset_path}/2015", "attack_cat", "Normal"
+        )
+
+    elif dataset_name == 2017:
+        unzip_if_needed(dataset_path, 2017)
+        dataset = UNSWDataset.from_root_dir(
+            f"{dataset_path}/2017", "Label", "benign"
+        )
+
+    else:
+        print("Dataset not supported yet")
+        return
+
+    print_strategy(strategy_name)
+
+    for attack_pattern in attack_patterns:
+        print_scenario(attack_pattern)
+        train_and_evaluate_ER(
+            dataset_name,
+            dataset,
+            feature_dim,
+            device,
+            memory_size,
+            attack_pattern,
+            epochs,
+            output_path=output_path,
+            learning_rate=lr,
+            weight_decay=1e-4,
+            batch_size=batch_size,
+            **kwargs
+        )
+
 def train_and_evaluate_ER(
-    trainset,
+    dataset_name,
+    trainset, # actually dataset
     feature_dim,
     device,
     memory_size,
     attack_pattern,
     epochs,
+    output_path,
     learning_rate=0.0003,
     weight_decay=1e-4,
     batch_size=512,
-    dataset_name="CICIDS",
     **kwargs):
 
-    print("\nStrategy ExperienceReplay ========")
-    print(f"\n=== Scenario - {attack_pattern} ===\n")
+    # parse the dataset
 
     # -------------------------
     # Reset model
@@ -280,26 +353,10 @@ def train_and_evaluate_ER(
     forgetting = np.mean(forgetting_values)
     forgetting_attack = np.mean(forgetting_attack_values)
 
-    print("\nFinal Average Accuracy:", avg_acc)
-    print("Final Average Attack Accuracy:", avg_attack_acc)
-    print("Final Forgetting:", forgetting)
-    print("Final Attack Forgetting:", forgetting_attack)
+    print_final_metrics(forgetting, forgetting_attack, avg_acc, avg_attack_acc)
 
-    #TODO modify
+    #TODO accuracy_attack_matrix 
+    accuracy_attack_matrix = []
 
-    # save_training_results(
-    #     dataset_name,
-    #     "ExperienceReplay",
-    #     attack_pattern,
-    #     accuracy_matrix,
-    #     attack_accuracy_matrix,
-    #     f1_history,
-    #     avg_acc,
-    #     avg_attack_acc,
-    #     forgetting,
-    #     forgetting_attack,
-    #     scenario_id,
-    #     f"cil-intrusion-detection/results/training/ExperienceReplay_{scenario_id}.json"
-    # )
-
-    return avg_acc, forgetting
+    save_training_results(dataset_name, "ER", attack_pattern, accuracy_matrix, accuracy_attack_matrix,
+        avg_acc, avg_attack_acc, forgetting, forgetting_attack, output_path)
