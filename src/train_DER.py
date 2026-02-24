@@ -21,7 +21,6 @@ def train_all_scenarios_der(
     batch_size,
     lr,
     attack_patterns,
-    **kwargs
     ):
 
     device = get_device()
@@ -55,7 +54,9 @@ def train_all_scenarios_der(
             memory_size,
             attack_pattern, # single pattern
             epochs,
-            output_path
+            batch_size,
+            output_path,
+            lr
         )
 
 def train_and_evaluate_DER(
@@ -67,7 +68,9 @@ def train_and_evaluate_DER(
     memory_size,
     attack_pattern, # just one pattern, single array
     epochs,
-    output_path
+    batch_size,
+    output_path,
+    lr = 1e-3
     ):
 
     input_dim = trainset.x.shape[1]
@@ -88,7 +91,6 @@ def train_and_evaluate_DER(
 
     acc_history = []
     acc_attack_history = []
-    f1_history = []
     seen_classes = []
 
     # Initialize a matrix to store accuracy values a_{k,j}
@@ -106,8 +108,7 @@ def train_and_evaluate_DER(
         model.update_classifier(len(task_classes))
         model.classifier = model.classifier.to(device)
 
-        #TODO modify optimizer like margarita told you to do it
-        lr = 1e-5 if task_id == 0 else 1e-3
+        lr = lr
         optimizer = torch.optim.Adam(model.parameters(), lr=lr ) 
         scheduler = torch.optim.lr_scheduler.CosineAnnealingLR(
             optimizer,
@@ -135,10 +136,8 @@ def train_and_evaluate_DER(
         # train model on the current task
         train_task(model, train_loader, reservoir_buffer, optimizer, scheduler, device=device, epochs= epochs)
 
-        # good I am evaluating on the test set!!!
         # evaluate the model on the current task
-        attack_classes = [cls for cls in task_classes if cls != trainset.benign]
-        acc, acc_attack, y_true, y_pred = evaluate(model, test_norm, task_classes, device)
+        acc, acc_attack, _, _ = evaluate(model, test_norm, task_classes, device)
 
         # update the history
         acc_history.append(acc)

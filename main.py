@@ -46,8 +46,8 @@ def main():
             epochs= args.epochs,
             batch_size=args.batch_size,
             lr=args.lr,
-            attack_patterns = scenarios,
-            **strategy_kwargs)
+            attack_patterns = scenarios
+            )
     elif strategy_name == "der":
         train_all_scenarios_der(
             strategy_name,
@@ -59,8 +59,7 @@ def main():
             epochs=args.epochs,
             batch_size=args.batch_size,
             lr=args.lr,
-            attack_patterns=scenarios,
-            **strategy_kwargs
+            attack_patterns=scenarios
             )
     else:
         raise ValueError(f"Unknown strategy: {strategy_name}")

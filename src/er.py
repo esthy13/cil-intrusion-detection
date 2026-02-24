@@ -8,7 +8,7 @@ from src.icarl.utils import get_device
 from torch.utils.data import DataLoader, Subset
 from src.dataset import UNSWDataset
 from src.utils import print_task_results, print_strategy, print_scenario, print_final_metrics, save_training_results, unzip_if_needed
-from src.metrics import accuracy, macro_f1, compute_cm, save_confusion_matrix, average_accuracy
+from src.metrics import accuracy, macro_f1, compute_cm, save_confusion_matrix
 from src.icarl.metrics import compute_forgetting
 from src.model import CILModel
 from src.task_builder import UpToNormalizer, build_scenario, build_task
@@ -22,7 +22,7 @@ def train_one_task(model, train_loader, optimizer, device, num_epochs, class_wei
     else:
         criterion = nn.CrossEntropyLoss()
 
-    for epoch in range(num_epochs):
+    for _ in range(num_epochs):
         total_loss = 0
 
         for x, y in train_loader:
@@ -39,7 +39,6 @@ def train_one_task(model, train_loader, optimizer, device, num_epochs, class_wei
 
             total_loss += loss.item()
 
-#TODO check accuracy and accuracy_attack matrix respect Margarita's indications
 def evaluate(model, dataset, seen_classes, task_id, device):
     model.eval()
 
