@@ -1,0 +1,34 @@
+{
+  "dataset": "2015",
+  "strategy_name": "DER++",
+  "scenario_pattern": [
+    4,
+    4
+  ],
+  "metrics": {
+    "accuracy_matrix": [
+      [
+        0.7862845737097234,
+        0.0
+      ],
+      [
+        0.7259118127381601,
+        0.7091921057748396
+      ]
+    ],
+    "accuracy_attack_matrix": [
+      [
+        0.705683119988046,
+        0.0
+      ],
+      [
+        0.769736514419485,
+        0.7343888005652711
+      ]
+    ],
+    "average_accuracy": 0.7477383397422814,
+    "average_attack_accuracy": 0.7200359602766586,
+    "forgetting_measure": 0.06873261445322354,
+    "forgetting_attack_measure": -0.04637953750433205
+  }
+}
