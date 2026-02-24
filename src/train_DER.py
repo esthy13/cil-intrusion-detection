@@ -143,7 +143,6 @@ def train_and_evaluate_DER(
 
         # update the history
         acc_history.append(acc)
-        f1_history.append(f1)
         acc_attack_history.append(acc_attack)
 
         # update the accuracy matrix with the accuracy for all previous tasks

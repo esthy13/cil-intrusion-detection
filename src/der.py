@@ -101,12 +101,8 @@ def train_task(model, loader, buffer, optimizer, scheduler, device,
                 replay_out, _ = model(bx)
 
                 # Expand stored logits if classifier grew
-                if blog.shape[1] < replay_out.shape[1]:
-                    pad = torch.zeros(
-                        blog.shape[0],
-                        replay_out.shape[1] - blog.shape[1],
-                        device=device
-                    )
+                if blog.shape[1] < model.classifier.out_features:
+                    pad = torch.zeros(blog.shape[0], model.classifier.out_features - blog.shape[1], device=device)
                     blog = torch.cat([blog, pad], dim=1)
 
                 # DER++
@@ -128,7 +124,8 @@ def train_task(model, loader, buffer, optimizer, scheduler, device,
                 )
             ]
 
-            buffer.add(original_indices, y, logits)
+            if y != benign_class or random.random() < 0.5:  # reduce benign dominance
+                buffer.add(indices, y, logits)
 
 def evaluate(model, dataset, seen_classes, device):
     model.eval()
