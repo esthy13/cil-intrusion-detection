@@ -127,7 +127,13 @@ def train_task(model, loader, buffer, optimizer, scheduler, device,
             if y != benign_class or random.random() < 0.5:  # reduce benign dominance
                 buffer.add(indices, y, logits)
 
-def evaluate(model, dataset, seen_classes, device):
+from sklearn.metrics import accuracy_score, f1_score
+import torch
+from torch.utils.data import DataLoader
+import numpy as np
+
+def evaluate(model, dataset, seen_classes, device, benign_class="benign"):
+
     model.eval()
 
     eval_dataset = build_task(dataset, seen_classes)
@@ -147,7 +153,14 @@ def evaluate(model, dataset, seen_classes, device):
     all_preds = np.concatenate(all_preds)
     all_targets = np.concatenate(all_targets)
 
+    # Overall accuracy
     acc = accuracy_score(all_targets, all_preds)
-    f1  = f1_score(all_targets, all_preds, average="macro")
 
-    return acc, f1, all_targets, all_preds
+    # Attack-only accuracy (exclude benign class)
+    attack_mask = all_targets != dataset.class_to_idx[benign_class]
+    if np.any(attack_mask):  # check if there are any attack samples
+        attack_acc = accuracy_score(all_targets[attack_mask], all_preds[attack_mask])
+    else:
+        attack_acc = 0.0
+
+    return acc, attack_acc, all_targets, all_preds

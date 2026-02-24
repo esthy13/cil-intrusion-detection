@@ -138,13 +138,13 @@ def train_and_evaluate_DER(
         # good I am evaluating on the test set!!!
         # evaluate the model on the current task
         attack_classes = [cls for cls in task_classes if cls != trainset.benign]
-        acc, f1, y_true, y_pred = evaluate(model, test_norm, task_classes, device)
-        acc_attack, _, _, _  = evaluate(model, test_norm, attack_classes, device)
+        acc, acc_attack, y_true, y_pred = evaluate(model, test_norm, task_classes, device)
 
         # update the history
         acc_history.append(acc)
         acc_attack_history.append(acc_attack)
 
+        #TODO update these methods based on the new eval func
         # update the accuracy matrix with the accuracy for all previous tasks
         for prev_task_id in range(task_id + 1):  # evaluate the current model on all previous tasks
             prev_seen_classes = tasks[prev_task_id]
