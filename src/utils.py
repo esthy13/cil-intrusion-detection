@@ -8,16 +8,10 @@ from pathlib import Path
 
 def save_training_results(dataset_name, strategy_name, attack_pattern, accuracy_matrix, accuracy_attack_matrix,
     avg_acc, avg_attack_acc, forgetting_measure,forgetting_attack, json_path):
-    
-    results_dir = Path("json_path") 
-    results_dir.mkdir(parents=True, exist_ok=True)
 
-    pattern_str = "-".join(map(str, attack_pattern))
+    output_name = f'{dataset_name}_{strategy_name}_{attack_pattern}.json'
 
-    output_name = f'{dataset_name}{strategy_name}{pattern_str}.json'
-
-    file_path = results_dir / output_name
-
+    file_path = f"{json_path}/{output_name}"
 
     results = {
             "dataset": dataset_name,
