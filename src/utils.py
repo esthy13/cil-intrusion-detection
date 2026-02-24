@@ -5,6 +5,26 @@ import numpy as np
 import random
 import math
 from pathlib import Path
+import os
+import zipfile
+
+def unzip_if_needed(root_path, year):
+    zip_path = os.path.join(root_path, f"{year}.zip")
+    extract_path = os.path.join(root_path, f"{year}")
+
+    # If already extracted, do nothing
+    if os.path.isdir(extract_path):
+        return
+
+    # If zip exists but folder doesn't → unzip
+    if os.path.isfile(zip_path):
+        with zipfile.ZipFile(zip_path, 'r') as zip_ref:
+            zip_ref.extractall(root_path)
+    else:
+        raise FileNotFoundError(
+            f"Neither extracted folder nor zip file found for dataset {year} "
+            f"in {root_path}"
+        )
 
 def save_training_results(dataset_name, strategy_name, attack_pattern, accuracy_matrix, accuracy_attack_matrix,
     avg_acc, avg_attack_acc, forgetting_measure,forgetting_attack, json_path):

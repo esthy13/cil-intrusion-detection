@@ -1,12 +1,62 @@
 import os
 import torch
 import numpy as np
+from src.icarl.utils import get_device 
 from src.task_builder import build_scenario, UpToNormalizer, build_task
 from src.model import CILModel
 from src.der import ReservoirBuffer, train_task, evaluate
-from src.utils import print_task_results, save_training_results, print_final_metrics
+from src.utils import print_task_results, save_training_results, print_final_metrics, print_strategy, print_scenario, unzip_if_needed
 from src.metrics import compute_forgetting, average_accuracy
 from torch.utils.data import DataLoader
+from src.dataset import IDSBaseDataset
+
+def train_all_scenarios_der(
+    strategy_name,
+    dataset_path,
+    dataset_name,
+    output_path,
+    feature_dim,
+    memory_size,
+    epochs,
+    batch_size,
+    lr,
+    attack_patterns,
+    **kwargs
+    ):
+
+    device = get_device()
+
+    DATA_ROOT = f"{dataset_path}/{dataset_name}"
+
+    if dataset_name == 2015:
+        unzip_if_needed(dataset_path, 2015)
+        train_set = IDSBaseDataset(DATA_ROOT, split="train", target_col="attack_cat", benign_class="Normal")
+        test_set  = IDSBaseDataset(DATA_ROOT, split="test", target_col="attack_cat", benign_class= "Normal")
+
+    elif dataset_name == 2017:
+        unzip_if_needed(dataset_path, 2017)
+        train_set = IDSBaseDataset(DATA_ROOT, split="train")
+        test_set  = IDSBaseDataset(DATA_ROOT, split="test")
+
+    else:
+        print("Dataset not supported yet")
+        return
+
+    print_strategy(strategy_name)
+
+    for scenario_id, attack_pattern in enumerate(attack_patterns):
+        print_scenario(scenario_id, attack_pattern)
+        train_and_evaluate_DER(
+            scenario_id,
+            train_set,
+            test_set,
+            feature_dim,
+            device,
+            memory_size,
+            attack_pattern, # single pattern
+            epochs,
+            output_path
+        )
 
 def train_and_evaluate_DER(
     scenario_id,
@@ -16,7 +66,8 @@ def train_and_evaluate_DER(
     device,
     memory_size,
     attack_pattern, # just one pattern, single array
-    epochs
+    epochs,
+    output_path
     ):
 
     input_dim = trainset.x.shape[1]
@@ -124,11 +175,14 @@ def train_and_evaluate_DER(
     avg_acc = average_accuracy(acc_history)
     avg_attack = average_accuracy(acc_attack_history)
     forgetting_attack = compute_forgetting(attack_accuracy)
-    avg_f1 = np.mean(f1_history)
+
+    print("accuracy matrix")
+    print(a_matrix)
+
+    print("\nattack accuracy matrix")
+    print(attack_accuracy)
 
     # save results for this scenario
-
-    out_json = f"results/training/{trainset.name}_DER_scenario_{scenario_id+1}_results.json"
     save_training_results(trainset.name, "DER++", attack_pattern, acc_history, f1_history,
-    avg_acc, avg_attack, forgetting_measure,forgetting_attack, scenario_id, out_json)
-    print_final_metrics(forgetting_measure, forgetting_attack, avg_acc, avg_f1)
+    avg_acc, avg_attack, forgetting_measure,forgetting_attack, scenario_id, output_path)
+    print_final_metrics(forgetting_measure, forgetting_attack, avg_acc)

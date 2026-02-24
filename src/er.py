@@ -7,7 +7,7 @@ import torch.nn as nn
 from src.icarl.utils import get_device 
 from torch.utils.data import DataLoader, Subset
 from src.dataset import UNSWDataset
-from src.utils import print_task_results, print_strategy, print_scenario, print_final_metrics, save_training_results
+from src.utils import print_task_results, print_strategy, print_scenario, print_final_metrics, save_training_results, unzip_if_needed
 from src.metrics import accuracy, macro_f1, compute_cm, save_confusion_matrix, average_accuracy
 from src.icarl.metrics import compute_forgetting
 from src.model import CILModel
@@ -111,25 +111,6 @@ def update_buffer(buffer_indices, task_dataset, total_buffer_size, seen_classes)
         new_buffer.extend(class_samples)
 
     return new_buffer
-
-def unzip_if_needed(root_path, year):
-    zip_path = os.path.join(root_path, f"{year}.zip")
-    extract_path = os.path.join(root_path, f"{year}")
-
-    # If already extracted, do nothing
-    if os.path.isdir(extract_path):
-        return
-
-    # If zip exists but folder doesn't → unzip
-    if os.path.isfile(zip_path):
-        with zipfile.ZipFile(zip_path, 'r') as zip_ref:
-            zip_ref.extractall(root_path)
-    else:
-        raise FileNotFoundError(
-            f"Neither extracted folder nor zip file found for dataset {year} "
-            f"in {root_path}"
-        )
-
 
 def train_all_scenarios_er(
     strategy_name,
