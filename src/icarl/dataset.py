@@ -73,27 +73,44 @@ class CILDataset:
         self.label_col_name = None
         self.label_to_id = None
         if dataset_name == 2015:
-            self.label_to_id = {'Normal': 0,
-                                'Analysis': 1,
-                                'Backdoor': 2,
-                                'DoS': 3,
-                                'Exploits': 4,
-                                'Fuzzers': 5,
-                                'Generic': 6,
-                                'Reconnaissance': 7,
-                                'Shellcode': 8}
             self.label_col_name = 'attack_cat'
+            benign_class = 'Normal'
+            # self.label_to_id = {'Normal': 0,
+            #                     'Analysis': 1,
+            #                     'Backdoor': 2,
+            #                     'DoS': 3,
+            #                     'Exploits': 4,
+            #                     'Fuzzers': 5,
+            #                     'Generic': 6,
+            #                     'Reconnaissance': 7,
+            #                     'Shellcode': 8}
         elif dataset_name == 2017:
-            self.label_to_id = {'benign': 0,
-                                'bot': 1,
-                                'ddos': 2,
-                                'dos': 3,
-                                'ftp-patator': 4,
-                                'portscan': 5,
-                                'ssh-patator': 6,
-                                'web-attack': 7}
+            # self.label_to_id = {'benign': 0,
+            #                     'bot': 1,
+            #                     'ddos': 2,
+            #                     'dos': 3,
+            #                     'ftp-patator': 4,
+            #                     'portscan': 5,
+            #                     'ssh-patator': 6,
+            #                     'web-attack': 7}
             self.label_col_name = 'Label'
+            benign_class = 'benign'
+        
+        # Count samples per label
+        label_counts = df[self.label_col_name].value_counts()
 
+        if benign_class not in label_counts.index:
+            raise ValueError("Dataset must contain a '{benign_class}' class")
+
+        # Sort labels by frequency (descending)
+        sorted_labels = label_counts.sort_values(ascending=False).index.tolist()
+
+        # Enforce 'benign' as class 0
+        sorted_labels.remove(benign_class)
+        self.classes_names = [benign_class] + sorted_labels
+
+        self.benign = benign_class
+        self.label_to_id = {c: i for i, c in enumerate(self.classes_names)}
 
         # Global immutable dataset
         self.all_features = df.drop(columns=[self.label_col_name]).values.astype(np.float32)

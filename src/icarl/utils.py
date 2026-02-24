@@ -5,41 +5,16 @@ import numpy as np
 import random
 import math
 
-def print_task_results(task_num, new_attacks, seen_attacks, accuracy, acc_attack, macro_f1):
-    """
-     --- Task 1 ---
-    
-    New attacks: [benign, dos]
-    Seen so far: [portscan]
+def print_strategy_pattern(strategy_name, attack_pattern):
+    print(f"\n=== Strategy {strategy_name} - attack pattern {attack_pattern} ===\n")
 
-    accuracy: 0.00
-    macro-f1: 0.00
-    """
-    accuracy_trunc = math.trunc(accuracy*100)/100 
-    acc_attack_trunc = math.trunc(acc_attack*100)/100 
-    macro_f1_trunc = math.trunc(macro_f1*100)/100 
-    print(f"   --- Task {task_num} ---\n\n",
-        f"   New attacks: {new_attacks}\n",
-        f"   Seen so far: {seen_attacks}\n\n",
-        f"   accuracy: {accuracy_trunc:.2f}\n",
-        f"   attack_accuracy: {acc_attack_trunc:.2f}\n",
-        f"   macro-f1: {macro_f1_trunc:.2f}\n\n")
-
-def print_scenario(scenario_id, attack_pattern):
-    print(f"=== Scenario {scenario_id} - {attack_pattern} ===\n\n")
-
-def print_strategy(strategy_name):
-    print(f"Strategy {strategy_name} ========\n\n")
-
-def print_final_metrics(forgetting, forgetting_attack, avg_acc, avg_f1):
-    forgetting_trunc = math.trunc(forgetting*100)/100
-    forgetting_attack_trunc = math.trunc(forgetting_attack*100)/100
-    avg_acc_trunc = math.trunc(avg_acc*100)/100 
-    avg_f1_trunc = math.trunc(avg_f1*100)/100 
-    print(f"Forgetting measure: {forgetting_trunc:.2f}")
-    print(f"Forgetting attack measure: {forgetting_attack_trunc:.2f}")
-    print(f"Average accuracy: {avg_acc_trunc:.2f}")
-    print(f"Average macro-f1: {avg_f1_trunc:.2f}\n")
+def print_final_metrics(accuracy_matrix, accuracy_attack_matrix, avg_acc, avg_attack_acc, forgetting_measure, forgetting_attack):
+    print("\naccuracy_matrix:\n", np.round(accuracy_matrix, 4))
+    print(f"\naccuracy_attack_matrix\n", np.round(accuracy_attack_matrix, 4))
+    print(f"\navg_acc: {avg_acc:.4f}")
+    print(f"\navg_attack_acc: {avg_attack_acc:.4f}")
+    print(f"\nforgetting: {forgetting_measure:.4f}")
+    print(f"\nforgetting_attack: {forgetting_attack:.4f}\n")
 
 def get_device():
     if torch.cuda.is_available():
@@ -59,7 +34,7 @@ def build_parser():
     parser.register('type', None, str.lower)
     parser.add_argument('--strategy', type=str, default='icarl', choices=['er', 'icarl', 'der'],
                         help='CIL strategy to use (e.g., er, icarl, der)')
-    parser.add_argument('--dataset', type=str, default='2017', choices=[2015, 2017],
+    parser.add_argument('--dataset', type=int, default=2017, choices=[2015, 2017],
                         help='Dataset to use')
     parser.add_argument("--scenarios",
     nargs="+",
@@ -151,7 +126,7 @@ def build_task_icarl(attack_pattern, attack_classes, classes_names, benign_class
     attack_task_labels = []
     id_to_class = {v: k for k, v in classes_names.items()}
 
-    # Loop start
+    # Loop
     for i, n_new in enumerate(attack_pattern):
         if i == 0:
             # Task 1: include benign + first attack chunk
@@ -165,7 +140,7 @@ def build_task_icarl(attack_pattern, attack_classes, classes_names, benign_class
             attack_task_labels.append(new_attacks)
             tasks_labels.append(new_attacks)
 
-    # Convertir a etiquetas numéricas usando el diccionario
+    # Covert numeric labels to classes
     tasks_names = [[id_to_class[i] for i in task] for task in tasks_labels]
 
     return tasks_labels, tasks_names

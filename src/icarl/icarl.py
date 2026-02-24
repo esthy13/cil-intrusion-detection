@@ -4,26 +4,25 @@ import torch
 import torch.nn as nn
 import torch.nn.functional as F
 from itertools import cycle
-from torch.utils.data import DataLoader
+from torch.utils.data import DataLoader, Subset
 from tqdm import tqdm
-from icarl.metrics import accuracy, attack_accuracy, average_accuracy, compute_forgetting, save_training_results
-from icarl.model import IDSNet
-from icarl.dataset import CILDataset
-from icarl.utils import build_task_icarl, get_device
+from src.icarl.metrics import accuracy, attack_accuracy, average_accuracy, compute_forgetting, save_training_results
+from src.icarl.model import IDSNet
+from src.icarl.dataset import CILDataset
+from src.icarl.utils import build_task_icarl, get_device, print_strategy_pattern, print_final_metrics
 
 def get_class_weights(labels, num_classes, device):
     counts = torch.bincount(labels, minlength=num_classes).float()
 
-    # evitar división por cero (clases sin samples en el task)
     counts[counts == 0] = 1.0
 
     weights = 1.0 / counts
-    weights = weights / weights.sum() * num_classes  # normalización opcional
+    weights = weights / weights.sum() * num_classes
 
     return weights.to(device)
 
 class ICaRL:
-    def __init__(self, model, device, memory_size=2000):
+    def __init__(self, model, device, memory_size=7000):
         self.model = model.to(device)
         self.device = device
         self.memory_size = memory_size
@@ -79,7 +78,7 @@ class ICaRL:
         )
 
         all_labels = torch.cat([y for _, _, y in bce_loader])
-        print(len(self.seen_classes))
+
         class_weights = get_class_weights(all_labels, len(self.seen_classes), self.device)
 
         if train_dataset_kd is not None and self.old_model is not None:
@@ -152,10 +151,7 @@ class ICaRL:
     def update_memory(self, dataset_train, batch_size=256):
         """
         Update exemplar memory using efficient batched feature extraction
-        and herding (aligned with original iCaRL formulation).
-
-        Assumes dataset_train.__getitem__ returns:
-            (global_idx, x, y)
+        and herding.
         """
         self.model.eval()
 
@@ -181,7 +177,6 @@ class ICaRL:
             if len(local_idxs) == 0:
                 continue
 
-            # ---- FAST: use Subset + DataLoader (no per-sample Python loop) ----
             class_subset = Subset(dataset_train, local_idxs)
             loader = DataLoader(
                 class_subset,
@@ -214,7 +209,7 @@ class ICaRL:
             # Concatenate once (memory efficient)
             features = torch.cat(all_features, dim=0)  # (N, D)
 
-            # ---- iCaRL ORIGINAL HERDING (more faithful than residual trick) ----
+            # Herding
             class_mean = features.mean(dim=0)
             class_mean = F.normalize(class_mean, dim=0)
 
@@ -227,10 +222,10 @@ class ICaRL:
                 # Target: mu * (k+1) - sum(selected)
                 target = class_mean * (k + 1) - selected_features_sum
 
-                # Vectorized distance (no clone, no CPU waste)
+                # Vectorized distance
                 distances = torch.norm(features - target, dim=1)
 
-                # Avoid reselection (faster than adding 1e6 noise)
+                # Avoid reselection
                 if selected_exemplars:
                     distances[selected_exemplars] = float("inf")
 
@@ -259,14 +254,13 @@ class ICaRL:
 
         with torch.no_grad():
             for cls in self.seen_classes:
-                # Puede pasar en primeras tasks
                 if cls not in self.exemplars or len(self.exemplars[cls]) == 0:
                     continue
 
                 exemplar_idxs = self.exemplars[cls]
                 feats_list = []
 
-                # Extraer features en batches (más eficiente)
+                # Extract batch features
                 for i in range(0, len(exemplar_idxs), batch_size):
                     batch_idxs = exemplar_idxs[i:i + batch_size]
 
@@ -330,7 +324,7 @@ class ICaRL:
             dists = torch.cdist(feats, means, p=2)  # (B, C)
             pred_indices = torch.argmin(dists, dim=1)
 
-            # Map indices -> real class ids (and move to CPU)
+            # Map indices -> real class ids
             preds = torch.tensor(
                 [class_ids[i] for i in pred_indices.cpu().tolist()],
                 dtype=torch.long
@@ -358,42 +352,14 @@ class ICaRL:
 
         return np.array(y_true), np.array(y_pred)
 
-def build_task_icarl2(attack_pattern, attack_classes, classes_names, benign_class=0):
-
-    if sum(attack_pattern) != len(attack_classes):
-        raise ValueError("Attack pattern is inconsistence with total number of attacks")
-
-    current_index = 0
-    new_attacks = []
-    tasks_labels = []
-    attack_task_labels = []
-    id_to_class = {v: k for k, v in classes_names.items()}
-
-    # Loop start
-    for i, n_new in enumerate(attack_pattern):
-        if i == 0:
-            # Task 1: include benign + first attack chunk
-            new_attacks = attack_classes[:n_new]
-            current_index += n_new
-            attack_task_labels.append(new_attacks)
-            tasks_labels.append([benign_class] + new_attacks)
-        else:
-            new_attacks = attack_classes[current_index:current_index+n_new]
-            current_index += n_new
-            attack_task_labels.append(new_attacks)
-            tasks_labels.append(new_attacks)
-
-    # Convertir a etiquetas numéricas usando el diccionario
-    tasks_names = [[id_to_class[i] for i in task] for task in tasks_labels]
-
-    return tasks_labels, tasks_names
-
-def train_icarl(strategy_name, dataset_path, dataset_name, ouput_path, feature_dim, memory_size, T, epochs, batch_size, lr, lambda_kd, attack_pattern, **kwargs):
+def train_icarl(strategy_name, dataset_path, dataset_name, ouput_path, feature_dim, memory_size, epochs, batch_size, lr, attack_pattern, **kwargs):
 
     datatrain = CILDataset(dataset_path, dataset_name, 'train')
     datatest = CILDataset(dataset_path, dataset_name, 'test')
     benign_class = 0
     attack_classes = list(datatrain.label_to_id.values())[1:]
+    attack_classes_names = datatrain.label_to_id
+
     input_dim = datatrain.all_features.shape[1]
 
     #default values
@@ -404,7 +370,9 @@ def train_icarl(strategy_name, dataset_path, dataset_name, ouput_path, feature_d
     device = get_device()
     icarl = ICaRL(model, device, memory_size)
 
-    tasks_labels, attack_task_labels = build_task_icarl(attack_pattern=attack_pattern, attack_classes=attack_classes, benign_class=benign_class)
+    tasks_labels, attack_task_labels = build_task_icarl(attack_pattern, attack_classes, attack_classes_names, benign_class)
+    
+    print_strategy_pattern(strategy_name, attack_pattern)
 
     # empy metrics
     num_tasks = len(attack_pattern)
@@ -413,7 +381,7 @@ def train_icarl(strategy_name, dataset_path, dataset_name, ouput_path, feature_d
 
     for i in range(len(tasks_labels)):
 
-        print(f'Task {i+1}/ new attacks: {tasks_labels[i]}')
+        print(f'Task {i+1} - new attacks: {attack_task_labels[i]}\n\n')
 
         new_attacks = tasks_labels[i]
 
@@ -426,16 +394,13 @@ def train_icarl(strategy_name, dataset_path, dataset_name, ouput_path, feature_d
         # training
         icarl.train_task(train_dataset_bce,  train_dataset_kd, epochs=epochs, batch_size=batch_size, lr=lr, lambda_kd=lambda_kd, T=T)
 
-        print('finished training')
-
         # after training
-        print('icarl update memory')
+        #print('icarl update memory')
         icarl.update_memory(train_dataset_bce, batch_size=batch_size)
         memory_indices = np.concatenate(list(icarl.exemplars.values()))
-        print('dataset update memory')
+        #print('dataset update memory')
         datatrain.update_memory(memory_indices)
 
-        print('compute class means')
         icarl.compute_class_means(datatrain)
 
         # Evaluating each task on test set
@@ -445,7 +410,6 @@ def train_icarl(strategy_name, dataset_path, dataset_name, ouput_path, feature_d
             'max_up_to': datatrain.max_up_to
         }
 
-        print('compute accuracy tasks')
         test_datasets = datatest.build_task_testset(task_labels=tasks_labels[:i+1],stats=stats_test_set)
 
         for j in range(len(test_datasets)):
@@ -453,18 +417,18 @@ def train_icarl(strategy_name, dataset_path, dataset_name, ouput_path, feature_d
             accuracy_matrix[i, j] = accuracy(y_true, y_pred)
             accuracy_attack_matrix[i, j] = attack_accuracy(y_true, y_pred)
 
-    # compute global metrics
-    print(f'accuracy_matrix: {accuracy_matrix}')
-    print(f'accuracy_attack_matrix: {accuracy_attack_matrix}')
-    print('computing global metrics')
+    print(f'\nTask Labels: {attack_task_labels}')
+    
     avg_acc = average_accuracy(accuracy_matrix)
     avg_attack_acc = average_accuracy(accuracy_attack_matrix)
     forgetting_measure = compute_forgetting(accuracy_matrix)
     forgetting_attack = compute_forgetting(accuracy_attack_matrix)
 
-    print(f'average_accuracy: {avg_acc}')
-    print(f'average_attack_accuracy: {avg_attack_acc}')
-    print(f'average_forgetting: {forgetting_measure}')
-    print(f'average_attack_forgetting: {forgetting_attack}')
+    print_final_metrics(accuracy_matrix, accuracy_attack_matrix, avg_acc, avg_attack_acc, forgetting_measure, forgetting_attack)
 
-    save_training_results(dataset_name, strategy_name, attack_pattern, accuracy_matrix, accuracy_attack_matrix, avg_acc, avg_attack_acc, forgetting_measure, forgetting_attack, 'A', ouput_path)
+    #print(f'average_accuracy: {avg_acc}')
+    #print(f'average_attack_accuracy: {avg_attack_acc}')
+    #print(f'average_forgetting: {forgetting_measure}')
+    #print(f'average_attack_forgetting: {forgetting_attack}')
+
+    save_training_results(dataset_name, strategy_name, attack_pattern, accuracy_matrix, accuracy_attack_matrix, avg_acc, avg_attack_acc, forgetting_measure, forgetting_attack, ouput_path)

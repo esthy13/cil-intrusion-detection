@@ -11,7 +11,6 @@ def attack_accuracy(y_true, y_pred):
 
   return accuracy_score(y_true[mask], y_pred[mask])
 
-
 def average_accuracy(accuracy_matrix):
 
   """
@@ -44,13 +43,9 @@ def compute_forgetting(results):
 
     return np.mean(FM_per_k)
 
-json_path = '/content/'
-strategy_name = 'icarl'
-
-
 def save_training_results(dataset_name, strategy_name, attack_pattern, accuracy_matrix, accuracy_attack_matrix, avg_acc, avg_attack_acc, forgetting_measure,forgetting_attack, json_path):
 
-    results_dir = Path("json_path")  # nombre de la carpeta
+    results_dir = Path(json_path)  # nombre de la carpeta
     results_dir.mkdir(parents=True, exist_ok=True)  # crea la carpeta si no existe
 
     pattern_str = "-".join(map(str, attack_pattern))
