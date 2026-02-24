@@ -310,21 +310,28 @@ def train_and_evaluate_ER(
 
             # Print only for current task
             if prev_index == task_index:
-                seen_classes = []
-                for t in tasks[:task_index+1]:
+
+                # Classes before this task
+                old_classes = []
+                for t in tasks[:task_index]:
                     for c in t:
-                        if c not in seen_classes:
-                            seen_classes.append(c)
+                        if c not in old_classes:
+                            old_classes.append(c)
+
+                # Classes introduced in this task
+                new_classes = [c for c in task_classes if c not in old_classes]
+
+                # Seen so far (old + new)
+                seen_classes = old_classes + new_classes
 
                 f1_history.append(f1)
 
                 print_task_results(
                     task_index + 1,
-                    task_classes,
-                    seen_classes,
+                    new_classes,      # only current new classes
+                    old_classes,      # previously seen classes
                     acc,
-                    acc_attack,
-                    f1
+                    acc_attack
                 )
 
         # -------------------------
@@ -350,18 +357,16 @@ def train_and_evaluate_ER(
     forgetting_values = []
     forgetting_attack_values = []
 
-    #TODO use Margarita's function for forgetting
-
     forgetting = compute_forgetting(accuracy_matrix)
     forgetting_attack = compute_forgetting(attack_accuracy_matrix)
 
     print_final_metrics(forgetting, forgetting_attack, avg_acc, avg_attack_acc)
 
-    print("accuracy matrix")
-    print(accuracy_matrix)
+    # print("accuracy matrix")
+    # print(accuracy_matrix)
 
-    print("\nattack accuracy matrix")
-    print(attack_accuracy_matrix)
+    # print("\nattack accuracy matrix")
+    # print(attack_accuracy_matrix)
 
     save_training_results(dataset_name, "ER", attack_pattern, accuracy_matrix, attack_accuracy_matrix,
         avg_acc, avg_attack_acc, forgetting, forgetting_attack, output_path)

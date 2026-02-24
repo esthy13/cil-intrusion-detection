@@ -16,10 +16,19 @@
         0.7721295936223994
       ]
     ],
-    "accuracy_attack_matrix": [],
+    "accuracy_attack_matrix": [
+      [
+        0.5248045026647408,
+        0
+      ],
+      [
+        0.6479304676993575,
+        0.6112877583465819
+      ]
+    ],
     "average_accuracy": 0.7870161408763162,
     "average_attack_accuracy": 0.6296091130229697,
-    "forgetting_measure": 0.0,
-    "forgetting_attack_measure": 0.0
+    "forgetting_measure": -0.06161702568888194,
+    "forgetting_attack_measure": -0.1231259650346167
   }
 }

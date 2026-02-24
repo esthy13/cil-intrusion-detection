@@ -30,7 +30,7 @@ def save_training_results(dataset_name, strategy_name, attack_pattern, accuracy_
     with open(file_path, "w") as f:
         json.dump(results, f, indent=2)
 
-def print_task_results(task_num, new_attacks, seen_attacks, accuracy, acc_attack, macro_f1):
+def print_task_results(task_num, new_attacks, seen_attacks, accuracy, acc_attack):
     """
      --- Task 1 ---
     
@@ -42,13 +42,11 @@ def print_task_results(task_num, new_attacks, seen_attacks, accuracy, acc_attack
     """
     accuracy_trunc = math.trunc(accuracy*100)/100 
     acc_attack_trunc = math.trunc(acc_attack*100)/100 
-    macro_f1_trunc = math.trunc(macro_f1*100)/100 
     print(f"   --- Task {task_num} ---\n\n",
         f"   New attacks: {new_attacks}\n",
         f"   Seen so far: {seen_attacks}\n\n",
         f"   accuracy: {accuracy_trunc:.2f}\n",
-        f"   attack_accuracy: {acc_attack_trunc:.2f}\n",
-        f"   macro-f1: {macro_f1_trunc:.2f}\n\n")
+        f"   attack_accuracy: {acc_attack_trunc:.2f}\n")
 
 def print_scenario(attack_pattern):
     print(f"=== Scenario - {attack_pattern} ===\n\n")
