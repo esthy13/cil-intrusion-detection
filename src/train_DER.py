@@ -162,7 +162,7 @@ def train_and_evaluate_DER(
         # new attacks = classes - seen_classes
         new_classes = [c for c in task_classes if c not in seen_classes]
 
-        print_task_results(task_id+1, new_classes, seen_classes, acc, acc_attack, f1)
+        print_task_results(task_id+1, new_classes, seen_classes, acc, acc_attack)
 
         seen_classes += new_classes
 
