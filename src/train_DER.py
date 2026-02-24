@@ -176,12 +176,7 @@ def train_and_evaluate_DER(
     avg_attack = average_accuracy(acc_attack_history)
     forgetting_attack = compute_forgetting(attack_accuracy)
 
-    print("accuracy matrix")
-    print(a_matrix)
-
-    print("\nattack accuracy matrix")
-    print(attack_accuracy)
-
     # save results for this scenario
     save_training_results(trainset.name, "DER++", attack_pattern, a_matrix.tolist(), attack_accuracy.tolist(),
     avg_acc, avg_attack, forgetting_measure,forgetting_attack, output_path)
+    print_final_metrics(forgetting_measure, forgetting_attack, avg_acc, avg_attack)
