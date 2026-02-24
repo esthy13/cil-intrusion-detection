@@ -9,6 +9,7 @@ from torch.utils.data import DataLoader, Subset
 from src.dataset import UNSWDataset
 from src.utils import print_task_results, print_strategy, print_scenario, print_final_metrics, save_training_results
 from src.metrics import accuracy, macro_f1, compute_cm, save_confusion_matrix, average_accuracy
+from src.icarl.metrics import compute_forgetting
 from src.model import CILModel
 from src.task_builder import UpToNormalizer, build_scenario, build_task
 
@@ -216,6 +217,8 @@ def train_and_evaluate_ER(
 
     accuracy_matrix = [[0]*num_tasks for _ in range(num_tasks)]
     attack_accuracy_matrix = [[0]*num_tasks for _ in range(num_tasks)]
+    per_task_accuracy_history = [[0]*num_tasks for _ in range(num_tasks)]
+    per_task_attack_accuracy_history = [[0]*num_tasks for _ in range(num_tasks)]
     f1_history = []
 
     # =========================
@@ -281,9 +284,9 @@ def train_and_evaluate_ER(
             class_weights
         )
 
-        # -------------------------
+        # =========================
         # Evaluate on seen tasks
-        # -------------------------
+        # =========================
         for prev_index in range(task_index + 1):
 
             prev_classes = tasks[prev_index]
@@ -297,9 +300,15 @@ def train_and_evaluate_ER(
                 device
             )
 
+            # Per-task accuracy
+            per_task_accuracy_history[task_index][prev_index] = acc
+            per_task_attack_accuracy_history[task_index][prev_index] = acc_attack
+
+            # Cumulative accuracy matrix
             accuracy_matrix[task_index][prev_index] = acc
             attack_accuracy_matrix[task_index][prev_index] = acc_attack
 
+            # Print only for current task
             if prev_index == task_index:
                 seen_classes = []
                 for t in tasks[:task_index+1]:
@@ -341,22 +350,18 @@ def train_and_evaluate_ER(
     forgetting_values = []
     forgetting_attack_values = []
 
-    for t in range(num_tasks - 1):
-        max_past = max(accuracy_matrix[i][t] for i in range(num_tasks))
-        final_perf = accuracy_matrix[num_tasks-1][t]
-        forgetting_values.append(max_past - final_perf)
+    #TODO use Margarita's function for forgetting
 
-        max_past_attack = max(attack_accuracy_matrix[i][t] for i in range(num_tasks))
-        final_perf_attack = attack_accuracy_matrix[num_tasks-1][t]
-        forgetting_attack_values.append(max_past_attack - final_perf_attack)
-
-    forgetting = np.mean(forgetting_values)
-    forgetting_attack = np.mean(forgetting_attack_values)
+    forgetting = compute_forgetting(accuracy_matrix)
+    forgetting_attack = compute_forgetting(attack_accuracy_matrix)
 
     print_final_metrics(forgetting, forgetting_attack, avg_acc, avg_attack_acc)
 
-    #TODO accuracy_attack_matrix 
-    accuracy_attack_matrix = []
+    print("accuracy matrix")
+    print(accuracy_matrix)
 
-    save_training_results(dataset_name, "ER", attack_pattern, accuracy_matrix, accuracy_attack_matrix,
+    print("\nattack accuracy matrix")
+    print(attack_accuracy_matrix)
+
+    save_training_results(dataset_name, "ER", attack_pattern, accuracy_matrix, attack_accuracy_matrix,
         avg_acc, avg_attack_acc, forgetting, forgetting_attack, output_path)

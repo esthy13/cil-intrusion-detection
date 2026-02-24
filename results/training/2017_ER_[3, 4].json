@@ -8,18 +8,27 @@
   "metrics": {
     "accuracy_matrix": [
       [
-        0.7381164216994673,
+        0.83096670106884,
         0
       ],
       [
-        0.40863850433586013,
-        0.41156085716306373
+        0.6852082517764571,
+        0.6847639029680096
       ]
     ],
-    "accuracy_attack_matrix": [],
-    "average_accuracy": 0.4100996807494619,
-    "average_attack_accuracy": 0.5230843732418937,
-    "forgetting_measure": 0.3294779173636072,
-    "forgetting_attack_measure": 0.057250727238967625
+    "accuracy_attack_matrix": [
+      [
+        0.27003775453363865,
+        0
+      ],
+      [
+        0.2767221637680262,
+        0.2876991256437897
+      ]
+    ],
+    "average_accuracy": 0.6849860773722334,
+    "average_attack_accuracy": 0.28221064470590795,
+    "forgetting_measure": 0.1457584492923829,
+    "forgetting_attack_measure": -0.006684409234387567
   }
 }
