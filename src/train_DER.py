@@ -137,7 +137,7 @@ def train_and_evaluate_DER(
         train_task(model, train_loader, reservoir_buffer, optimizer, scheduler, device=device, epochs= epochs)
 
         # evaluate the model on the current task
-        acc, acc_attack, _, _ = evaluate(model, test_norm, task_classes, device)
+        acc, acc_attack, _, _ = evaluate(model, test_norm, task_classes, device, benign_class=trainset.benign)
 
         # update the history
         acc_history.append(acc)
