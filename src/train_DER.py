@@ -183,6 +183,5 @@ def train_and_evaluate_DER(
     print(attack_accuracy)
 
     # save results for this scenario
-    save_training_results(trainset.name, "DER++", attack_pattern, acc_history, f1_history,
-    avg_acc, avg_attack, forgetting_measure,forgetting_attack, scenario_id, output_path)
-    print_final_metrics(forgetting_measure, forgetting_attack, avg_acc)
+    save_training_results(trainset.name, "DER++", attack_pattern, a_matrix, attack_accuracy,
+    avg_acc, avg_attack, forgetting_measure,forgetting_attack, output_path)

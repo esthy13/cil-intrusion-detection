@@ -1,0 +1,10 @@
+{
+  "dataset": "2015",
+  "strategy_name": "DER++",
+  "scenario_pattern": [
+    3,
+    3,
+    2
+  ],
+  "metrics": {
+    "accuracy_matrix": 
