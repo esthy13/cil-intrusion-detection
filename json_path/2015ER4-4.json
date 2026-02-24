@@ -1,0 +1,25 @@
+{
+  "dataset": 2015,
+  "strategy_name": "ER",
+  "scenario_pattern": [
+    4,
+    4
+  ],
+  "metrics": {
+    "accuracy_matrix": [
+      [
+        0.6987154094278761,
+        0
+      ],
+      [
+        0.6029841736932451,
+        0.6203645730845602
+      ]
+    ],
+    "accuracy_attack_matrix": [],
+    "average_accuracy": 0.6116743733889026,
+    "average_attack_accuracy": 0.3727298693158938,
+    "forgetting_measure": 0.09573123573463105,
+    "forgetting_attack_measure": 0.11963630563088212
+  }
+}
