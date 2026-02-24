@@ -90,17 +90,11 @@ source .venv/bin/activate   # (Linux/macOS)
 ```
 
 #### 2) Install dependencies
-This repo currently **does not include a `requirements.txt`**.
-
-Install at least:
-- `torch` (choose the correct command from https://pytorch.org/)
-- common scientific stack: `numpy`, `pandas`, `scikit-learn`, `matplotlib`, `seaborn`, `tqdm`
-
-Example (may need adjustments depending on your code and OS/CUDA):
+To install all the necessary dependencies, simply run:
 ```bash
-pip install numpy pandas scikit-learn matplotlib seaborn tqdm
-# plus PyTorch from pytorch.org
+pip install -r requirements.txt
 ```
+If you're using a GPU, check that the PyTorch version in requirements.txt is the latest stable version compatible with your CUDA setup.
 
 #### 3) Prepare the data
 Place datasets under `data/` according to the expected layout. From the existing repo notes:
