@@ -1,0 +1,34 @@
+{
+  "dataset": 2015,
+  "strategy_name": "icarl",
+  "scenario_pattern": [
+    4,
+    4
+  ],
+  "metrics": {
+    "accuracy_matrix": [
+      [
+        0.7171501153537082,
+        0.0
+      ],
+      [
+        0.6434144697617752,
+        0.19770159719516947
+      ]
+    ],
+    "accuracy_attack_matrix": [
+      [
+        0.8123225581511182,
+        0.0
+      ],
+      [
+        0.682646809782338,
+        0.19770159719516947
+      ]
+    ],
+    "average_accuracy": 0.4205580334784723,
+    "average_attack_accuracy": 0.44017420348875375,
+    "forgetting_measure": 0.07373564559193302,
+    "forgetting_attack_measure": 0.12967574836878015
+  }
+}
