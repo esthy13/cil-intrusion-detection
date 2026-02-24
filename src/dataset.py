@@ -204,3 +204,16 @@ class IDSIncrementalDataset:
             memory_dataset = None
 
         return task_dataset, memory_dataset
+
+# class from Jean
+class UNSWDataset(Dataset):
+    def __init__(self, X_tensor, y_tensor, class_to_idx):
+        self.x = X_tensor
+        self.y = y_tensor
+        self.class_to_idx = class_to_idx
+
+    def __len__(self):
+        return len(self.y)
+
+    def __getitem__(self, idx):
+        return self.x[idx], self.y[idx]

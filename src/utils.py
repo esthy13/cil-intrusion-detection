@@ -5,8 +5,8 @@ import numpy as np
 import random
 import math
 
-def save_training_results(dataset_name, strategy_name, attack_pattern, acc_history, f1_history,
-    avg_acc, avg_attack_acc, forgetting_measure,forgetting_attack, scenario_id, json_path):
+def save_training_results(dataset_name, strategy_name, attack_pattern, accuracy_matrix, accuracy_attack_matrix,
+    avg_acc, avg_attack_acc, forgetting_measure,forgetting_attack, json_path):
     
 
     results = {
@@ -14,8 +14,8 @@ def save_training_results(dataset_name, strategy_name, attack_pattern, acc_histo
             "strategy_name": strategy_name,
             "scenario_pattern": attack_pattern,
             "metrics": {
-                "accuracy": acc_history,
-                "f1": f1_history,
+                "accuracy_matrix": accuracy_matrix,
+                "accuracy_attack_matrix": accuracy_attack_matrix,
                 "average_accuracy": avg_acc,
                 "average_attack_accuracy": avg_attack_acc,
                 "forgetting_measure": forgetting_measure,
