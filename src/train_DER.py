@@ -144,16 +144,20 @@ def train_and_evaluate_DER(
         acc_history.append(acc)
         acc_attack_history.append(acc_attack)
 
-        #TODO update these methods based on the new eval func
         # update the accuracy matrix with the accuracy for all previous tasks
         for prev_task_id in range(task_id + 1):  # evaluate the current model on all previous tasks
             prev_seen_classes = tasks[prev_task_id]
-            prev_acc, _, _, _ = evaluate(model, test_norm, prev_seen_classes, device)
-            a_matrix[task_id, prev_task_id] = prev_acc
 
-            # Now, calculate attack accuracy by excluding benign classes
-            attack_classes = [cls for cls in prev_seen_classes if cls != trainset.benign]
-            attack_acc, _, _, _ = evaluate(model, test_norm, attack_classes, device)
+            # Evaluate once using the new function
+            prev_acc, attack_acc, _ , _ = evaluate(
+                model, 
+                test_norm, 
+                prev_seen_classes, 
+                device, 
+                benign_class=trainset.benign
+            )
+
+            a_matrix[task_id, prev_task_id] = prev_acc
             attack_accuracy[task_id, prev_task_id] = attack_acc
 
 
