@@ -6,6 +6,7 @@ import pandas as pd
 import numpy as np
 from torch.utils.data import Dataset
 
+
 def trial():
     print("This is a trail method")
 
@@ -204,3 +205,59 @@ class IDSIncrementalDataset:
             memory_dataset = None
 
         return task_dataset, memory_dataset
+
+# class from Jean
+class UNSWDataset(Dataset):
+    def __init__(self, X_tensor, y_tensor, class_to_idx, classes, target_col, benign_class):
+        self.x = X_tensor
+        self.y = y_tensor
+        self.class_to_idx = class_to_idx
+        self.classes = classes  # <-- new field
+
+        self.target = target_col
+        self.benign = benign_class
+
+    @classmethod
+    def from_root_dir(cls, root_dir, target_col, benign_class):
+        splits = ["train", "test"]
+        x_tensor = None
+        y_tensor = None
+        class_to_idx = None
+        labels = None  # <-- will store class order
+
+        for split in splits:
+            csv_dir = os.path.join(root_dir, split)
+            csvs = glob.glob(os.path.join(csv_dir, "*.csv"))
+            dataset = pd.concat([pd.read_csv(csv) for csv in csvs], ignore_index=True)
+
+            if split == "train":
+                X = dataset.drop(columns=[target_col]).to_numpy(dtype=np.float32)
+                x_tensor = torch.from_numpy(X)
+
+            if split == "test":
+                label_counts = dataset[target_col].value_counts()
+                sorted_labels = label_counts.sort_values(ascending=False).index.tolist()
+
+                if benign_class in sorted_labels:
+                    sorted_labels.remove(benign_class)
+
+                labels = [benign_class] + sorted_labels
+                class_to_idx = {c: i for i, c in enumerate(labels)}
+
+                y_numeric = dataset[target_col].map(class_to_idx).to_numpy(dtype=np.int64)
+                y_tensor = torch.from_numpy(y_numeric)
+
+        return cls(
+            x_tensor,
+            y_tensor,
+            class_to_idx,
+            labels,          # <-- pass it
+            target_col,
+            benign_class
+        )
+
+    def __len__(self):
+        return len(self.y)
+
+    def __getitem__(self, idx):
+        return self.x[idx], self.y[idx]
