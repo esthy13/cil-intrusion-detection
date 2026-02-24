@@ -45,7 +45,7 @@ def train_all_scenarios_der(
     print_strategy(strategy_name)
 
     for scenario_id, attack_pattern in enumerate(attack_patterns):
-        print_scenario(scenario_id, attack_pattern)
+        print_scenario(attack_pattern)
         train_and_evaluate_DER(
             scenario_id,
             train_set,
