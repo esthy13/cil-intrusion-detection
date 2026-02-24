@@ -7,6 +7,8 @@ import math
 
 def save_training_results(dataset_name, strategy_name, attack_pattern, acc_history, f1_history,
     avg_acc, avg_attack_acc, forgetting_measure,forgetting_attack, scenario_id, json_path):
+    
+
     results = {
             "dataset": dataset_name,
             "strategy_name": strategy_name,
