@@ -54,8 +54,8 @@ def train_all_scenarios_der(
             memory_size,
             attack_pattern, # single pattern
             epochs,
-            batch_size,
             output_path,
+            batch_size,
             lr
         )
 
@@ -68,8 +68,8 @@ def train_and_evaluate_DER(
     memory_size,
     attack_pattern, # just one pattern, single array
     epochs,
-    batch_size,
     output_path,
+    batch_size=128,
     lr = 1e-3
     ):
 
@@ -86,7 +86,7 @@ def train_and_evaluate_DER(
     tasks, attack_pattern = build_scenario(all_classes, attack_pattern, benign_class=trainset.benign)
 
     # Initialize model and buffer
-    model = CILModel(input_dim).to(device)
+    model = CILModel(input_dim, feature_dim).to(device)
     reservoir_buffer = ReservoirBuffer(size=memory_size)
 
     acc_history = []
@@ -129,7 +129,7 @@ def train_and_evaluate_DER(
 
         train_loader = DataLoader(
             build_task(train_norm, task_classes),
-            batch_size=128,
+            batch_size=batch_size,
             shuffle=True
         )
 
@@ -158,8 +158,6 @@ def train_and_evaluate_DER(
 
             a_matrix[task_id, prev_task_id] = prev_acc
             attack_accuracy[task_id, prev_task_id] = attack_acc
-
-
 
         # new attacks = classes - seen_classes
         new_classes = [c for c in task_classes if c not in seen_classes]

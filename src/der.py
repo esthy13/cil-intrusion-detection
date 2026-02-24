@@ -5,7 +5,7 @@ import torch.nn as nn
 import torch.nn.functional as F 
 from torch.utils.data import DataLoader
 from src.task_builder import build_task
-from sklearn.metrics import accuracy_score, f1_score
+from sklearn.metrics import accuracy_score
 
 class ReservoirBuffer:
     def __init__(self, size):
@@ -69,7 +69,7 @@ class ReservoirBuffer:
         return indices, labels, logits
 
 def train_task(model, loader, buffer, optimizer, scheduler, device,
-               alpha=0.5, beta=0.5, epochs=1):
+               alpha=0.5, beta=0.5, epochs=1, benign_class=0):
 
     ce = nn.CrossEntropyLoss()
     model.train()
@@ -116,7 +116,7 @@ def train_task(model, loader, buffer, optimizer, scheduler, device,
             scheduler.step()
 
             # ----- Add current batch to buffer -----
-            original_indices = [
+            indices = [
                 loader.dataset.indices[i]
                 for i in range(
                     batch_idx * loader.batch_size,
@@ -126,11 +126,6 @@ def train_task(model, loader, buffer, optimizer, scheduler, device,
 
             if y != benign_class or random.random() < 0.5:  # reduce benign dominance
                 buffer.add(indices, y, logits)
-
-from sklearn.metrics import accuracy_score, f1_score
-import torch
-from torch.utils.data import DataLoader
-import numpy as np
 
 def evaluate(model, dataset, seen_classes, device, benign_class="benign"):
 

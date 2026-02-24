@@ -1,9 +1,7 @@
-import json
 import argparse
 import torch
 import numpy as np
 import random
-import math
 
 def print_strategy_pattern(strategy_name, attack_pattern):
     print(f"\n=== Strategy {strategy_name} - attack pattern {attack_pattern} ===\n")

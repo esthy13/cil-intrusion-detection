@@ -122,7 +122,6 @@ def train_all_scenarios_er(
     batch_size,
     lr,
     attack_patterns,
-    **kwargs
 ):
     device = get_device()
 
@@ -158,7 +157,6 @@ def train_all_scenarios_er(
             learning_rate=lr,
             weight_decay=1e-4,
             batch_size=batch_size,
-            **kwargs
         )
 
 def train_and_evaluate_ER(
@@ -173,7 +171,7 @@ def train_and_evaluate_ER(
     learning_rate=0.0003,
     weight_decay=1e-4,
     batch_size=512,
-    **kwargs):
+    ):
 
     # parse the dataset
 
@@ -301,9 +299,6 @@ def train_and_evaluate_ER(
                 # Classes introduced in this task
                 new_classes = [c for c in task_classes if c not in old_classes]
 
-                # Seen so far (old + new)
-                seen_classes = old_classes + new_classes
-
                 f1_history.append(f1)
 
                 print_task_results(
@@ -333,9 +328,6 @@ def train_and_evaluate_ER(
 
     avg_acc = np.mean(final_accuracies)
     avg_attack_acc = np.mean(final_attack_accuracies)
-
-    forgetting_values = []
-    forgetting_attack_values = []
 
     forgetting = compute_forgetting(accuracy_matrix)
     forgetting_attack = compute_forgetting(attack_accuracy_matrix)

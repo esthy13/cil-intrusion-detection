@@ -1,4 +1,3 @@
-import torch
 import numpy as np
 import os
 import matplotlib.pyplot as plt
@@ -34,7 +33,7 @@ def compute_forgetting(results):
     for k in range(1, num_tasks):
         f_k = 0  # Initialize forgetting for task k
         for j in range(k):  # Compare task k with all previous tasks (0 to k-1)
-            best_past = np.max(results[:k])  # Maximum accuracy from all previous tasks
+            best_past = np.max(results[:k, j])  # Maximum accuracy from all previous tasks on task j
             current = results[k]  # Current performance on task k
             f_k += (best_past - current)  # Forgetting is the difference
 
@@ -74,10 +73,3 @@ def compute_cm(y_true, y_pred, seen_classes, show_plot=True):
     plt.show()
 
   return cm
-
-def average_accuracy(f1_history):
-
-  """
-  f1_history: list of macro_f1 up to current task
-  """
-  return np.mean(f1_history)
