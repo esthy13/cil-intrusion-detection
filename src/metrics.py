@@ -44,24 +44,6 @@ def compute_forgetting(results):
     # Return the average forgetting across all tasks
     return np.mean(forgetting_per_task)
 
-def save_confusion_matrix(cm, class_names, out_path, title=None):
-    os.makedirs(os.path.dirname(out_path), exist_ok=True)
-
-    plt.figure(figsize=(8, 6))
-    plt.imshow(cm, interpolation="nearest", cmap=plt.cm.Blues)
-    plt.title(title or "Confusion Matrix")
-    plt.colorbar()
-
-    tick_marks = np.arange(len(class_names))
-    plt.xticks(tick_marks, class_names, rotation=45, ha="right")
-    plt.yticks(tick_marks, class_names)
-
-    plt.tight_layout()
-    plt.ylabel("True label")
-    plt.xlabel("Predicted label")
-    plt.savefig(out_path, dpi=300, bbox_inches="tight")
-    plt.close() 
-
 def compute_cm(y_true, y_pred, seen_classes, show_plot=True):
   cm = confusion_matrix(y_true, y_pred)
   if show_plot:

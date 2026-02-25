@@ -1,5 +1,6 @@
 from sklearn.metrics import accuracy_score
 import json
+import numpy as np
 from pathlib import Path
 
 def accuracy(y_true, y_pred):
@@ -18,8 +19,6 @@ def average_accuracy(accuracy_matrix):
   """
   num_tasks = accuracy_matrix.shape[0]
   return np.mean([accuracy_matrix[num_tasks-1, k] for k in range(num_tasks)])
-
-import numpy as np
 
 def compute_forgetting(results):
     """

@@ -8,7 +8,7 @@ from src.icarl.utils import get_device
 from torch.utils.data import DataLoader, Subset
 from src.dataset import UNSWDataset
 from src.utils import print_task_results, print_strategy, print_scenario, print_final_metrics, save_training_results, unzip_if_needed
-from src.metrics import accuracy, macro_f1, compute_cm, save_confusion_matrix
+from src.metrics import accuracy, compute_cm
 from src.icarl.metrics import compute_forgetting
 from src.model import CILModel
 from src.task_builder import UpToNormalizer, build_scenario, build_task
@@ -39,7 +39,7 @@ def train_one_task(model, train_loader, optimizer, device, num_epochs, class_wei
 
             total_loss += loss.item()
 
-def evaluate(model, dataset, seen_classes, task_id, device):
+def evaluate(model, dataset, seen_classes, device):
     model.eval()
 
     loader = DataLoader(dataset, batch_size=512, shuffle=False)
@@ -61,9 +61,6 @@ def evaluate(model, dataset, seen_classes, task_id, device):
     # Overall accuracy
     acc = accuracy(all_labels, all_preds)
 
-    # Macro F1
-    f1 = macro_f1(all_labels, all_preds)
-
     # Attack accuracy (exclude Normal = class 0)
     attack_indices = [i for i, label in enumerate(all_labels) if label != 0]
 
@@ -75,11 +72,9 @@ def evaluate(model, dataset, seen_classes, task_id, device):
         acc_attack = 0.0
 
     # Confusion matrix
-    cm = compute_cm(all_labels, all_preds, seen_classes, show_plot=False)
-    save_path = f"results/confusion_matrices/task_{task_id}.png"
-    save_confusion_matrix(cm, seen_classes, save_path)
+    _ = compute_cm(all_labels, all_preds, seen_classes, show_plot=False)
 
-    return acc, acc_attack, f1
+    return acc, acc_attack
 
 def update_buffer(buffer_indices, task_dataset, total_buffer_size, seen_classes):
 
@@ -197,7 +192,6 @@ def train_and_evaluate_ER(
     attack_accuracy_matrix = [[0]*num_tasks for _ in range(num_tasks)]
     per_task_accuracy_history = [[0]*num_tasks for _ in range(num_tasks)]
     per_task_attack_accuracy_history = [[0]*num_tasks for _ in range(num_tasks)]
-    f1_history = []
 
     # =========================
     # FULL ER LOOP
@@ -270,11 +264,10 @@ def train_and_evaluate_ER(
             prev_classes = tasks[prev_index]
             prev_dataset = build_task(trainset, prev_classes)
 
-            acc, acc_attack, f1 = evaluate(
+            acc, acc_attack = evaluate(
                 model,
                 prev_dataset,
                 prev_classes,
-                f"{task_index+1}_eval_on_task_{prev_index+1}",
                 device
             )
 
@@ -298,8 +291,6 @@ def train_and_evaluate_ER(
 
                 # Classes introduced in this task
                 new_classes = [c for c in task_classes if c not in old_classes]
-
-                f1_history.append(f1)
 
                 print_task_results(
                     task_index + 1,
