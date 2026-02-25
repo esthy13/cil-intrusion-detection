@@ -1,143 +1,140 @@
-import os
 import json
-import numpy as np
+from pathlib import Path
 import matplotlib.pyplot as plt
+from collections import defaultdict
 
-def line_plot(res_path="results/training"):
 
-    results = {}
+def scenario_to_str(pattern):
+    """Converts [1,1,1] -> '1-1-1'"""
+    return "+".join(map(str, pattern))
 
-    # --------- LOAD DATA ----------
-    for file_name in os.listdir(res_path):
-        if file_name.endswith(".json"):
-            file_path = os.path.join(res_path, file_name)
 
-            with open(file_path, "r") as f:
-                data = json.load(f)
+def load_results_from_folder(folder_path, dataset_filter=None):
 
-            dataset = data.get("dataset", "unknown_dataset")
-            strategy = data["strategy_name"]
-            scenario_pattern = data.get("scenario_pattern", [])
+    folder = Path(folder_path)
+    results = []
 
-            avg_acc = data["metrics"]["average_accuracy"]
-            forgetting = data["metrics"]["forgetting_measure"]
+    for json_file in folder.glob("*.json"):
+        with open(json_file, "r") as f:
+            data = json.load(f)
 
-            if dataset not in results:
-                results[dataset] = {}
+        if dataset_filter is not None and str(data["dataset"]) != str(dataset_filter):
+            continue
 
-            if strategy not in results[dataset]:
-                results[dataset][strategy] = {
-                    "patterns": [],
-                    "avg_accuracy": [],
-                    "forgetting": []
-                }
+        results.append(data)
 
-            strategy_data = results[dataset][strategy]
+    return results
 
-            strategy_data["patterns"].append(scenario_pattern)
-            strategy_data["avg_accuracy"].append(avg_acc)
-            strategy_data["forgetting"].append(forgetting)
 
-    # --------- PLOTTING ----------
-    for dataset, strategies in results.items():
-        for strategy, values in strategies.items():
+def plot_metrics_by_scenario(
+    folder_path,
+    dataset,
+    scenario_order,
+    save_dir=None,
+    figsize=(6, 4),
+    dpi=300
+):
+    """
+    Generate 4 line plots:
+    - average_accuracy
+    - average_attack_accuracy
+    - forgetting_measure
+    - forgetting_attack_measure
+    """
 
-            num_points = len(values["avg_accuracy"])
-            x_positions = list(range(1, num_points + 1))  # integers only
+    results = load_results_from_folder(folder_path, dataset_filter=dataset)
 
-            plt.figure(figsize=(10, 5))
+    if len(results) == 0:
+        raise ValueError(f"No se encontraron JSON para el dataset {dataset}")
 
-            plt.plot(x_positions, values["avg_accuracy"],
-                     marker="o", label="Average Accuracy")
+    # Fixed Colors
+    strategy_colors = {
+        "er": "#1f77b4",      # blue
+        "icarl": "#2ca02c",   # green
+        "der++": "#ff7f0e",     # orange
+    }
 
-            plt.plot(x_positions, values["forgetting"],
-                     marker="s", label="Forgetting Measure")
+    display_names = {
+        "er": "ER",
+        "icarl": "Icarl",
+        "der++": "DER++"
+    }
 
-            # Set integer ticks
-            plt.xticks(
-                x_positions,
-                [str(p) for p in values["patterns"]],
-                rotation=45,
-                ha="right"
+    metrics_list = [
+        "average_accuracy",
+        "average_attack_accuracy",
+        "forgetting_measure",
+        "forgetting_attack_measure",
+    ]
+
+    data_dict = {
+        metric: defaultdict(dict) for metric in metrics_list
+    }
+
+    for res in results:
+        strategy = res["strategy_name"]
+        scenario_str = scenario_to_str(res["scenario_pattern"])
+        metrics = res["metrics"]
+
+        for metric in metrics_list:
+            if metric in metrics:
+                data_dict[metric][strategy][scenario_str] = metrics[metric]
+
+    dataset_name = "UNSW-NB15" if str(dataset) == "2015" else "CIC-IDS-2017"
+
+    for metric in metrics_list:
+        plt.figure(figsize=figsize, dpi=dpi)
+
+        strategies = sorted(data_dict[metric].keys())
+
+        for strategy in strategies:
+            scenario_values = data_dict[metric][strategy]
+
+            y_values = []
+            x_labels = []
+
+            for scen in scenario_order:
+                scen_str = scen if isinstance(scen, str) else scenario_to_str(scen)
+
+                if scen_str in scenario_values:
+                    y_values.append(scenario_values[scen_str])
+                else:
+                    y_values.append(None)  # gap si falta experimento
+
+                x_labels.append(scen_str)
+
+            strategy_key = strategy.strip().lower()
+
+            color = strategy_colors.get(strategy_key, "#333333")
+
+            label_name = display_names.get(strategy_key, strategy)
+
+            plt.plot(
+                x_labels,
+                y_values,
+                marker="o",
+                linewidth=2,
+                markersize=5,
+                label=label_name,
+                color=color
             )
 
-            plt.xlabel("Scenario Pattern")
-            plt.ylabel("Metric Value")
-            plt.title(f"{dataset} - {strategy}")
-            plt.legend()
-            plt.grid(True)
-            plt.tight_layout()
-            plt.show()
-            
-def bar_plot(target_scenario_pattern, res_path="results/training"):
+        pretty_metric = metric.replace("_", " ").title()
+        plt.title(f"{pretty_metric} - {dataset_name}")
+        plt.xlabel("Scenario Pattern")
+        plt.ylabel(pretty_metric)
+        plt.xticks(rotation=0)
+        plt.grid(False)
+        plt.legend(frameon=False)
 
-    results = {}
+        if save_dir is not None:
+            save_path = Path(save_dir)
+            save_path.mkdir(parents=True, exist_ok=True)
+            plt.savefig(
+                save_path / f"{metric}_dataset_{dataset}.png",
+                bbox_inches="tight",
+                dpi=dpi
+            )
 
-    for file_name in os.listdir(res_path):
-        if file_name.endswith(".json"):
-            file_path = os.path.join(res_path, file_name)
-
-            with open(file_path, "r") as f:
-                data = json.load(f)
-
-            dataset = data.get("dataset", "unknown_dataset")
-            scenario_pattern = tuple(data.get("scenario_pattern", []))
-
-            # Filter using scenario_pattern
-            if scenario_pattern == tuple(target_scenario_pattern):
-
-                strategy = data["strategy_name"]
-                metrics = data["metrics"]
-
-                if dataset not in results:
-                    results[dataset] = {}
-
-                results[dataset][strategy] = {
-                    "avg_acc": metrics.get("average_accuracy", 0),
-                    "avg_attack_acc": metrics.get("average_attack_accuracy", 0),
-                    "forgetting": metrics.get("forgetting_measure", 0),
-                    "forgetting_attack": metrics.get("forgetting_attack_measure", 0),
-                }
-
-    # print("Collected results:", results)
-
-    for dataset, strategies in results.items():
-        for strategy, values in strategies.items():
-
-            labels = [
-                "Avg Accuracy",
-                "Avg Attack Accuracy",
-                "Forgetting",
-                "Forgetting Attack"
-            ]
-
-            data_values = [
-                values["avg_acc"],
-                values["avg_attack_acc"],
-                values["forgetting"],
-                values["forgetting_attack"]
-            ]
-
-            x = np.arange(len(labels))
-
-            plt.figure(figsize=(8, 5))
-            bars = plt.bar(x, data_values)
-
-            plt.xticks(x, labels, rotation=20)
-            plt.ylabel("Metric Value")
-            plt.title(f"{dataset} - {strategy}")
-            plt.ylim(0, 1)
-            plt.grid(axis='y', linestyle='--', alpha=0.6)
-
-            for bar in bars:
-                height = bar.get_height()
-                plt.text(
-                    bar.get_x() + bar.get_width() / 2,
-                    height + 0.01,
-                    f"{height:.3f}",
-                    ha='center',
-                    va='bottom'
-                )
-
-            plt.tight_layout()
-            plt.show()
+        plt.show()
+        plt.close()

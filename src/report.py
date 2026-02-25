@@ -11,7 +11,6 @@ def generate_cil_metric_table(json_folder, dataset_filter=None):
     - Best values highlighted:
         * MAX for AA, AAA
         * MIN for AF, AAF
-    - Multirow scenario layout (paper-ready)
     """
 
     json_folder = Path(json_folder)
@@ -58,7 +57,7 @@ def generate_cil_metric_table(json_folder, dataset_filter=None):
         key=lambda s: (sum(map(int, s.split("+"))), s)
     )
 
-    strategies = ["icarl", "der", "er"]
+    strategies = ["icarl", "der++", "er"]
     metrics_order = ["AA", "AAA", "AF", "AAF"]
 
     # Metrics where higher is better vs lower is better
@@ -68,10 +67,10 @@ def generate_cil_metric_table(json_folder, dataset_filter=None):
     latex = []
     latex.append("\\begin{table}[t]")
     latex.append("\\centering")
-
+    latex.append("\\resizebox{\\columnwidth}{!}{")
     latex.append("\\begin{tabular}{llccc}")
     latex.append("\\toprule")
-    latex.append("\\textbf{Scenario} & \\textbf{Metric} & \\textbf{iCaRL} & \\textbf{DER} & \\textbf{ER} \\\\")
+    latex.append("\\textbf{Scenario} & \\textbf{Metric} & \\textbf{iCaRL} & \\textbf{DER++} & \\textbf{ER} \\\\")
     latex.append("\\midrule")
 
     for s_idx, scenario in enumerate(sorted_scenarios):
@@ -122,14 +121,15 @@ def generate_cil_metric_table(json_folder, dataset_filter=None):
             latex.append("\\midrule")
 
     latex.append("\\bottomrule")
-    latex.append("\\end{tabular}")
+    latex.append("\\end{tabular}}")
     if dataset_filter is not None:
         latex.append(
-            f"\\caption{{Continual Learning Performance across Scenarios (Dataset: {dataset_filter})}}"
+            f"\\caption{{Results CIL Dataset: {dataset_filter})}}"
         )
     else:
         latex.append("\\caption{Continual Learning Performance across Scenarios}")
     latex.append("\\label{tab:cil_results}")
     latex.append("\\end{table}")
 
-    return "\n".join(latex)
+    latex_table = "\n".join(latex)
+    return latex_table.replace("\\n", "\n")
