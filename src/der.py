@@ -110,6 +110,7 @@ def train_task(model, loader, buffer, optimizer, scheduler, device,
                     blog = torch.cat([blog, pad], dim=1)
 
                 # DER++
+                # mse_loss = minimizing the squared L2 distance between vectors
                 loss += alpha * F.mse_loss(replay_out, blog)
                 loss += beta * ce(replay_out, by)
 
